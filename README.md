@@ -1,10 +1,11 @@
 # DBM-Frostmourne (3.3.5a)
 
-## No longer maintained
-
-This project is no longer actively developed. Timers up to and including Ulduar should be OK but anything after that needs a lot of work. Feel free to fork this project!
+The goal of this project is to expand **DBM** to support the upcoming **Karazhan** reimagining on **Frostmourne**.
 
 ## Credit
-Core addon backport from retail by Barsoomx: (https://github.com/Barsoomx/DBM-wowcircle)  
-Forked from Zidra's excellent continuation of the addon: (https://github.com/Zidras/DBM-Warmane)  
-Tons of T7 fixes provided by Oomshroom  
+This project is forked from **Broizter's DBM-Frostmourne** project: [GitHub](https://github.com/broizter/DBM-Frostmourne).  
+
+Broizter's project credited the following contributors:
+- Core addon backport from retail by **Barsoomx**: [GitHub](https://github.com/Barsoomx/DBM-wowcircle)  
+- Continued development by **Zidra**: [GitHub](https://github.com/Zidras/DBM-Warmane)  
+- Various T7 fixes provided by **Oomshroom**
