@@ -40,7 +40,7 @@ local SPELLS = {
 	WATER_BOLT = 37054,
 	ARCANE_EXPLOSION = 29973,
 	CHAINS_OF_ICE = 29991,
-	BLIZZARD_SUMMON = 29969,
+	SUMMON_BLIZZARD = 29969,
 	BLIZZARD = 29951,
 	ARCANE_MISSILES = 29956
 }
@@ -49,24 +49,32 @@ local SPELLS = {
 local TIMERS = {
 	[DIFFICULTY.NORMAL_10] = {
 		BERSERK = 600,
-		FLAME_WREATH_CD = 30
+		FLAME_WREATH_CD = 60,
+		ARCANE_EXPLOSION_CD = 60,
+		SUMMON_BLIZZARD_CD = 60
 	},
 	[DIFFICULTY.NORMAL_25] = {
 		BERSERK = 600,
-		FLAME_WREATH_CD = 30
+		FLAME_WREATH_CD = 60,
+		ARCANE_EXPLOSION_CD = 60,
+		SUMMON_BLIZZARD_CD = 60
 	},
 	[DIFFICULTY.HEROIC_10] = {
 		BERSERK = 600,
-		FLAME_WREATH_CD = 30
+		FLAME_WREATH_CD = 60,
+		ARCANE_EXPLOSION_CD = 60,
+		SUMMON_BLIZZARD_CD = 60
 	},
 	[DIFFICULTY.HEROIC_25] = {
 		BERSERK = 600,
-		FLAME_WREATH_CD = 30
+		FLAME_WREATH_CD = 60,
+		ARCANE_EXPLOSION_CD = 60,
+		SUMMON_BLIZZARD_CD = 60
 	},
 }
 
 mod:RegisterEventsInCombat(
-	EventString("SPELL_CAST_START", SPELLS.FROSTBOLT, SPELLS.FIREBALL, SPELLS.FLAME_WREATH_CAST, SPELLS.WATER_BOLT, SPELLS.ARCANE_EXPLOSION),
+	EventString("SPELL_CAST_START", SPELLS.FROSTBOLT, SPELLS.FIREBALL, SPELLS.FLAME_WREATH_CAST, SPELLS.WATER_BOLT, SPELLS.ARCANE_EXPLOSION, SPELLS.SUMMON_BLIZZARD),
 	EventString("SPELL_AURA_APPLIED", SPELLS.CHAINS_OF_ICE),
 	EventString("SPELL_DAMAGE", SPELLS.ARCANE_MISSILES)
 )
@@ -88,10 +96,12 @@ local warning_chains_of_ice = mod:NewSpecialWarningDispel(SPELLS.CHAINS_OF_ICE, 
 local kill_adds_warning = mod:NewSpecialWarning("Kill the adds!", nil, nil, nil, 1, 2)
 --Arcane Explosion runaway warning and timer
 local arcane_explosion_warning = mod:NewSpecialWarningMove(SPELLS.ARCANE_EXPLOSION, nil, nil, nil, 1, 2)
+local arcane_explosion_timer = mod:NewCDTimer(TIMERS[difficulty].ARCANE_EXPLOSION_CD, SPELLS.ARCANE_EXPLOSION, nil, nil, nil, 2)
 --Arcane Missiles warning
 local arcane_missiles_warning = mod:NewSpecialWarningYou(SPELLS.ARCANE_MISSILES, nil, nil, nil, 1, 2)
---Blizzard damage warning
+--Blizzard damage warning and summon timer
 local blizzard_damage_warning = mod:NewSpecialWarningGTFO(SPELLS.BLIZZARD, nil, nil, nil, 1, 8)
+local summon_blizzard_timer = mod:NewCDTimer(TIMERS[difficulty].SUMMON_BLIZZARD_CD, SPELLS.SUMMON_BLIZZARD, nil, nil, nil, 2)
 
 function mod:OnCombatStart(delay)
 	--Fetch difficulty from dbm
@@ -108,8 +118,10 @@ function mod:OnCombatStart(delay)
 
 	--Start timers
 	enrage_timer:Start(TIMERS[difficulty].BERSERK - delay)
-	flame_wreath_timer:Start(TIMERS[difficulty].FLAME_WREATH_CD - delay)
-
+	--Currently seems like everything starts of CD
+	--flame_wreath_timer:Start(TIMERS[difficulty].FLAME_WREATH_CD - delay)
+	--arcane_explosion_timer:Start(TIMERS[difficulty].ARCANE_EXPLOSION_CD - delay)
+	--summon_blizzard_timer:Start(TIMERS[difficulty].SUMMON_BLIZZARD_CD - delay)
 end
 
 function mod:SPELL_CAST_START(args)
@@ -136,6 +148,9 @@ function mod:SPELL_CAST_START(args)
 	elseif args.spellId == SPELLS.ARCANE_EXPLOSION then
 		arcane_explosion_warning:Show()
 		arcane_explosion_warning:Play("runaway")
+		arcane_explosion_timer:Start(TIMERS[difficulty].ARCANE_EXPLOSION_CD)
+	elseif args.spellId == SPELLS.SUMMON_BLIZZARD then
+		summon_blizzard_timer:Start(TIMERS[difficulty].SUMMON_BLIZZARD_CD)
 	end
 end
 
