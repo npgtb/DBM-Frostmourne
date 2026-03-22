@@ -47,16 +47,24 @@ local SPELLS = {
 --Timing table
 local TIMERS = {
 	[DIFFICULTY.NORMAL_10] = {
-		BERSERK = 600
+		BERSERK = 600,
+        BLIGHT_CD = 15,
+        IMPENDING_DESPAIR_CD = 15
 	},
 	[DIFFICULTY.NORMAL_25] = {
-		BERSERK = 600
+		BERSERK = 600,
+        BLIGHT_CD = 15,
+        IMPENDING_DESPAIR_CD = 15
 	},
 	[DIFFICULTY.HEROIC_10] = {
-		BERSERK = 600
+		BERSERK = 600,
+        BLIGHT_CD = 15,
+        IMPENDING_DESPAIR_CD = 15
 	},
 	[DIFFICULTY.HEROIC_25] = {
-		BERSERK = 600
+		BERSERK = 600,
+        BLIGHT_CD = 15,
+        IMPENDING_DESPAIR_CD = 15
 	},
 }
 
@@ -66,9 +74,11 @@ mod:RegisterEventsInCombat(
 
 --Enrage timer
 local enrage_timer = mod:NewBerserkTimer(TIMERS[difficulty].BERSERK)
---Warning to dispell Blight
+--Warning to dispell Blight and blight timers
+local timer_blight = mod:NewCDTimer(TIMERS[difficulty].BLIGHT_CD, SPELLS.BLIGHT, nil, nil, nil, 2)
 local warning_dispell_blight = mod:NewSpecialWarningDispel(SPELLS.BLIGHT, "RemoveDisease", nil, nil, 1, 2)
---Warning to dispell Impending Despair
+--Warning to dispell Impending Despair and timer
+local timer_impending_despair = mod:NewCDTimer(TIMERS[difficulty].IMPENDING_DESPAIR_CD, SPELLS.IMPENDING_DESPAIR, nil, nil, nil, 2)
 local warning_dispell_despair = mod:NewSpecialWarningDispel(SPELLS.IMPENDING_DESPAIR, "MagicDispeller", nil, nil, 1, 2)
 --Ground damage warning
 local warning_chill = mod:NewSpecialWarningGTFO(SPELLS.CHILL, nil, nil, nil, 1, 8)
@@ -95,10 +105,12 @@ function mod:SPELL_AURA_APPLIED(args)
         -- Only show this to players who can dispel Disease/Nature
         warning_dispell_blight:Show(args.destName)
         warning_dispell_blight:Play("dispelnow")
+        timer_blight:Start(TIMERS[difficulty].BLIGHT_CD)
     --Impending Despair
     elseif args.spellId == SPELLS.IMPENDING_DESPAIR then
         warning_dispell_despair:Show(args.destName)
         warning_dispell_despair:Play("dispelnow")
+        timer_impending_despair:Start(TIMERS[difficulty].IMPENDING_DESPAIR_CD)
     end
 end
 
