@@ -30,7 +30,7 @@ function DBM_KFU.GetTiming(timing_table, difficulty, phase, ability)
 end
 
 --Helper function to start timers if possible, respects the DISABLED value
-function DBM_KFU.StartTimer(timer_obj, timing, offset)
+function DBM_KFU.TryStartTimer(timer_obj, timing, offset)
 	if timer_obj ~= nil and type(timer_obj.Start) == "function" and timing ~= DBM_KFU.TIMER_DISABLED then
 		timer_obj:Start(timing + (offset or 0))
 	end
