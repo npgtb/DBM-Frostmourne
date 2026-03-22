@@ -29,6 +29,7 @@ local DIFFICULTY = {
 --default to 25H difficulty for now
 local difficulty = DIFFICULTY.HEROIC_25
 local player_name = nil
+local player_guid = nil
 
 --Spell ids of the counter
 local SPELLS = {
@@ -73,6 +74,7 @@ function mod:OnCombatStart(delay)
 	--Fetch difficulty from dbm
 	difficulty = DBM:GetCurrentInstanceDifficulty() or DIFFICULTY.HEROIC_25
 	player_name = UnitName("player")
+	player_guid = UnitGUID("player")
 	--Assume berserk ends it all
 	mod:SetWipeTime(TIMERS[difficulty].BERSERK)
 	--Begin timers
