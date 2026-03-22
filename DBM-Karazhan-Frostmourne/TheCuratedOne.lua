@@ -39,7 +39,8 @@ local SPELLS = {
 	MORTAL_FOUND = 25646,
 	BLOOD_MIRROR = 70838,
 	DEATH_AND_DECAY = 72108,
-	COLDFLAME = 70823
+	COLDFLAME = 70823,
+	COLDFLAME_SUMMON = 69138
 }
 
 --Timing table
@@ -48,33 +49,42 @@ local TIMERS = {
 		BERSERK = 600,
 		CHAOS_BOLT_CD = 7,
 		FEAR_CD = 25,
-		BLOOD_MIRROR_CD = 25
+		BLOOD_MIRROR_CD = 25,
+		DEATH_AND_DECAY_CD = 20,
+		COLDFLAME_CD = 10
 	},
 	[DIFFICULTY.NORMAL_25] = {
-		BERSERK = 200,
+		BERSERK = 600,
 		CHAOS_BOLT_CD = 7,
 		FEAR_CD = 25,
-		BLOOD_MIRROR_CD = 25
+		BLOOD_MIRROR_CD = 25,
+		DEATH_AND_DECAY_CD = 20,
+		COLDFLAME_CD = 10
 	},
 	[DIFFICULTY.HEROIC_10] = {
 		BERSERK = 600,
 		CHAOS_BOLT_CD = 7,
 		FEAR_CD = 25,
-		BLOOD_MIRROR_CD = 25
+		BLOOD_MIRROR_CD = 25,
+		DEATH_AND_DECAY_CD = 20,
+		COLDFLAME_CD = 10
 	},
 	[DIFFICULTY.HEROIC_25] = {
 		BERSERK = 600,
 		CHAOS_BOLT_CD = 7,
 		FEAR_CD = 25,
-		BLOOD_MIRROR_CD = 25
+		BLOOD_MIRROR_CD = 25,
+		DEATH_AND_DECAY_CD = 20,
+		COLDFLAME_CD = 10
 	},
 }
 
 mod:RegisterEventsInCombat(
 	EventString("SPELL_CAST_START", SPELLS.CHAOS_BOLT),
-	EventString("SPELL_CAST_SUCCESS", SPELLS.SOUL_FLAY, SPELLS.FEAR),
+	EventString("SPELL_CAST_SUCCESS", SPELLS.SOUL_FLAY, SPELLS.FEAR, SPELLS.DEATH_AND_DECAY),
 	EventString("SPELL_AURA_APPLIED_DOSE", SPELLS.MORTAL_FOUND),
-	EventString("SPELL_AURA_APPLIED", SPELLS.BLOOD_MIRROR)
+	EventString("SPELL_AURA_APPLIED", SPELLS.BLOOD_MIRROR),
+	EventString("SPELL_SUMMON", SPELLS.COLDFLAME_SUMMON)
 )
 
 --Enrage timer
@@ -90,7 +100,11 @@ local mortal_wound_stack_warning = mod:NewSpecialWarningStack(SPELLS.MORTAL_FOUN
 --Fear warning and timer
 local timer_fear = mod:NewCDTimer(TIMERS[difficulty].FEAR_CD, SPELLS.FEAR, nil, nil, nil, 2)
 --Ground damage warning
-local warning_death_and_decay = mod:NewSpecialWarningGTFO(SPELLS.DEATH_AND_DECAY, nil, nil, nil, 1, 8)
+local ground_damage_warning = mod:NewSpecialWarningGTFO(SPELLS.DEATH_AND_DECAY, nil, nil, nil, 1, 8)
+--Death and decay timer
+local timer_death_and_decay = mod:NewCDTimer(TIMERS[difficulty].DEATH_AND_DECAY_CD, SPELLS.DEATH_AND_DECAY, nil, nil, nil, 2)
+--Cold flame timer
+local timer_cold_flame = mod:NewCDTimer(TIMERS[difficulty].COLDFLAME_CD, SPELLS.COLDFLAME, nil, nil, nil, 2)
 --Blood Mirror Warning
 local warning_blood_mirror = mod:NewSpecialWarningYou(SPELLS.BLOOD_MIRROR, nil, nil, nil, 1, 2)
 local blood_mirror_timer = mod:NewCDTimer(TIMERS[difficulty].BLOOD_MIRROR_CD, SPELLS.BLOOD_MIRROR, nil, nil, nil, 2)
@@ -139,6 +153,9 @@ function mod:SPELL_CAST_SUCCESS(args)
     --Fear timer reset
     elseif args.spellId == SPELLS.FEAR then
 		timer_fear:Start(TIMERS[difficulty].FEAR_CD)
+	-- Death and decay timer rest
+	elseif args.spellId == SPELLS.DEATH_AND_DECAY then
+		timer_death_and_decay:Start(TIMERS[difficulty].DEATH_AND_DECAY_CD)
     end
 end
 
@@ -168,8 +185,15 @@ function mod:SPELL_PERIODIC_DAMAGE(_, _, _, destGUID, _, _, spellId, spellName)
     --Death and Decay & ColdFlame move warning
 	if (spellId == SPELLS.COLDFLAME or spellId == SPELLS.DEATH_AND_DECAY) and 
 		destGUID == player_guid and self:AntiSpam() then
-		warning_death_and_decay:Show(spellName)
-		warning_death_and_decay:Play("watchfeet")
+		ground_damage_warning:Show(spellName)
+		ground_damage_warning:Play("watchfeet")
 	end
 end
 mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
+
+function mod:SPELL_SUMMON(args)
+	--Reset coldflame timer
+	if args.spellId == SPELLS.COLDFLAME_SUMMON then
+		timer_cold_flame:Start(TIMERS[difficulty].COLDFLAME_CD)
+	end
+end
