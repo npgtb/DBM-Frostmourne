@@ -29,6 +29,7 @@
 
 localization.en.lua
 
+Utility.lua
 MaidenOfRot.lua
 TheCuratedOne.lua
 WotlkShadeOfAran.lua
