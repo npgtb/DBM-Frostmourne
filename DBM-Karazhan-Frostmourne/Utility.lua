@@ -17,12 +17,18 @@ end
 
 --Helper function for retrieving timers
 function DBM_KFU.GetTiming(timing_table, difficulty, phase, ability)
-	--Search the timing table
 	if timing_table ~= nil and timing_table[difficulty] ~= nil then
+		--See if the phase has a specific override table
 		if timing_table[difficulty][phase] ~= nil then
 			if timing_table[difficulty][phase][ability] ~= nil then
 				return timing_table[difficulty][phase][ability]
 			end
+		--See if we have a fallback default phase table
+		elseif 
+			timing_table[difficulty]["PHASE_DEFAULT"] ~= nil and
+			timing_table[difficulty]["PHASE_DEFAULT"][ability] ~= nil 
+		then
+			return timing_table[difficulty]["PHASE_DEFAULT"][ability]
 		end
 	end
 	--If we can't find the ability in current difficulty/phase setting then mark it as disabled
