@@ -31,15 +31,15 @@ local player_guid = nil
 
 --Spell ids of the counter
 local SPELLS = {
-    SHADOWBOLT = {NAME = "", ID = 29317},
-    FROSTBOLT = {NAME = "", ID = 55802},
-    PRESENCE_OF_FROST = {NAME = "", ID = 9250005},
-    PRESENCE_OF_SHADOW = {NAME = "", ID = 9250004},
-    CHILL = {NAME = "", ID = 55699},
-    BLIGHT = {NAME = "", ID = 70285},
-    IMPENDING_DESPAIR = {NAME = "", ID = 72426},
-    DESPAIR_STRICKEN = {NAME = "", ID = 72428},
-    AURA_OF_SUFFERING = {NAME = "", ID = 41292}
+    SHADOWBOLT = {NAME = "Shadow Bolt", ID = 29317},
+    FROSTBOLT = {NAME = "Frostbolt", ID = 55802},
+    PRESENCE_OF_FROST = {NAME = "Presence of Frost", ID = 9250005},
+    PRESENCE_OF_SHADOW = {NAME = "Presence of Shadow", ID = 9250004},
+    CHILL = {NAME = "Chill", ID = 55699},
+    BLIGHT = {NAME = "Blight", ID = 70285},
+    IMPENDING_DESPAIR = {NAME = "Impending Despair", ID = 72426},
+    DESPAIR_STRICKEN = {NAME = "Despair Stricken", ID = 72428},
+    AURA_OF_SUFFERING = {NAME = "Aura of Suffering", ID = 41292}
 }
 
 --We transition based on his health %
