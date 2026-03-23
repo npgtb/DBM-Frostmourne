@@ -33,16 +33,16 @@ local player_guid = nil
 
 --Spell ids of the counter
 local SPELLS = {
-	FROSTBOLT = 29954,
-	FIREBALL = 29953,
-	FLAME_WREATH_CAST = 30004,
-	FLAME_WREATH = 29946,
-	WATER_BOLT = 37054,
-	ARCANE_EXPLOSION = 29973,
-	CHAINS_OF_ICE = 29991,
-	SUMMON_BLIZZARD = 29969,
-	BLIZZARD = 29951,
-	ARCANE_MISSILES = 29956
+	FROSTBOLT = {NAME = "Frostbolt", ID = 29954},
+	FIREBALL = {NAME = "Fireball", ID = 29953},
+	FLAME_WREATH_CAST = {NAME = "Flame Wreath", ID = 30004},
+	FLAME_WREATH = {NAME = "Flame Wreath", ID = 29946},
+	WATER_BOLT = {NAME = "Water Bolt", ID = 37054},
+	ARCANE_EXPLOSION = {NAME = "Arcane Explosion", ID = 29973},
+	CHAINS_OF_ICE = {NAME = "Chains of Ice", ID = 29991},
+	SUMMON_BLIZZARD = {NAME = "Summon Blizzard", ID = 29969},
+	BLIZZARD = {NAME = "Blizzard", ID = 29951},
+	ARCANE_MISSILES = {NAME = "Arcane Missiles", ID = 29956}
 }
 
 --Timing table
@@ -74,9 +74,9 @@ local TIMERS = {
 }
 
 mod:RegisterEventsInCombat(
-	EventString("SPELL_CAST_START", SPELLS.FROSTBOLT, SPELLS.FIREBALL, SPELLS.FLAME_WREATH_CAST, SPELLS.WATER_BOLT, SPELLS.ARCANE_EXPLOSION, SPELLS.SUMMON_BLIZZARD),
-	EventString("SPELL_AURA_APPLIED", SPELLS.CHAINS_OF_ICE),
-	EventString("SPELL_DAMAGE", SPELLS.ARCANE_MISSILES)
+	EventString("SPELL_CAST_START", SPELLS.FROSTBOLT.ID, SPELLS.FIREBALL.ID, SPELLS.FLAME_WREATH_CAST.ID, SPELLS.WATER_BOLT.ID, SPELLS.ARCANE_EXPLOSION.ID, SPELLS.SUMMON_BLIZZARD.ID),
+	EventString("SPELL_AURA_APPLIED", SPELLS.CHAINS_OF_ICE.ID),
+	EventString("SPELL_DAMAGE", SPELLS.ARCANE_MISSILES.ID)
 )
 
 --Enrage timer
@@ -86,22 +86,22 @@ local enrage_timer = mod:NewBerserkTimer(TIMERS[difficulty].BERSERK)
 mod.vb.kick_groups = 3
 mod.vb.current_kick_group = 0
 --Kick warning for Frostbolt and Fireball
-local frost_fire_kick_warning = mod:NewSpecialWarningInterruptCount(SPELLS.FROSTBOLT, "HasInterrupt", nil, nil, 1, 2)
+local frost_fire_kick_warning = mod:NewSpecialWarningInterruptCount(SPELLS.FROSTBOLT.ID, "HasInterrupt", nil, nil, 1, 2)
 --Flame Wreath warning and timer
-local flame_wreath_warning = mod:NewSpecialWarningMove(SPELLS.FLAME_WREATH_CAST, nil, nil, nil, 1, 2)
-local flame_wreath_timer = mod:NewCDTimer(TIMERS[difficulty].FLAME_WREATH_CD, SPELLS.FLAME_WREATH_CAST, nil, nil, nil, 2)
+local flame_wreath_warning = mod:NewSpecialWarningMove(SPELLS.FLAME_WREATH_CAST.ID, nil, nil, nil, 1, 2)
+local flame_wreath_timer = mod:NewCDTimer(TIMERS[difficulty].FLAME_WREATH_CD, SPELLS.FLAME_WREATH_CAST.ID, nil, nil, nil, 2)
 --Chains of ice dispell warning
-local warning_chains_of_ice = mod:NewSpecialWarningDispel(SPELLS.CHAINS_OF_ICE, "MagicDispeller", nil, nil, 1, 2)
+local warning_chains_of_ice = mod:NewSpecialWarningDispel(SPELLS.CHAINS_OF_ICE.ID, "MagicDispeller", nil, nil, 1, 2)
 --Warning to start killing the water elementals
 local kill_adds_warning = mod:NewSpecialWarning("Kill the adds!", nil, nil, nil, 1, 2)
 --Arcane Explosion runaway warning and timer
-local arcane_explosion_warning = mod:NewSpecialWarningMove(SPELLS.ARCANE_EXPLOSION, nil, nil, nil, 1, 2)
-local arcane_explosion_timer = mod:NewCDTimer(TIMERS[difficulty].ARCANE_EXPLOSION_CD, SPELLS.ARCANE_EXPLOSION, nil, nil, nil, 2)
+local arcane_explosion_warning = mod:NewSpecialWarningMove(SPELLS.ARCANE_EXPLOSION.ID, nil, nil, nil, 1, 2)
+local arcane_explosion_timer = mod:NewCDTimer(TIMERS[difficulty].ARCANE_EXPLOSION_CD, SPELLS.ARCANE_EXPLOSION.ID, nil, nil, nil, 2)
 --Arcane Missiles warning
-local arcane_missiles_warning = mod:NewSpecialWarningYou(SPELLS.ARCANE_MISSILES, nil, nil, nil, 1, 2)
+local arcane_missiles_warning = mod:NewSpecialWarningYou(SPELLS.ARCANE_MISSILES.ID, nil, nil, nil, 1, 2)
 --Blizzard damage warning and summon timer
-local blizzard_damage_warning = mod:NewSpecialWarningGTFO(SPELLS.BLIZZARD, nil, nil, nil, 1, 8)
-local summon_blizzard_timer = mod:NewCDTimer(TIMERS[difficulty].SUMMON_BLIZZARD_CD, SPELLS.SUMMON_BLIZZARD, nil, nil, nil, 2)
+local blizzard_damage_warning = mod:NewSpecialWarningGTFO(SPELLS.BLIZZARD.ID, nil, nil, nil, 1, 8)
+local summon_blizzard_timer = mod:NewCDTimer(TIMERS[difficulty].SUMMON_BLIZZARD_CD, SPELLS.SUMMON_BLIZZARD.ID, nil, nil, nil, 2)
 
 function mod:OnCombatStart(delay)
 	--Fetch difficulty from dbm
@@ -112,8 +112,8 @@ function mod:OnCombatStart(delay)
 	mod:SetWipeTime(TIMERS[difficulty].BERSERK)
     --Register Blizzard move warnings
 	self:RegisterShortTermEvents(
-		EventString("SPELL_PERIODIC_DAMAGE", SPELLS.BLIZZARD),
-		EventString("SPELL_PERIODIC_MISSED", SPELLS.BLIZZARD)
+		EventString("SPELL_PERIODIC_DAMAGE", SPELLS.BLIZZARD.ID),
+		EventString("SPELL_PERIODIC_MISSED", SPELLS.BLIZZARD.ID)
 	)
 
 	--Start timers
@@ -126,7 +126,7 @@ end
 
 function mod:SPELL_CAST_START(args)
 	--Kick Frostbolt and Fireball warning
-	if args.spellId == SPELLS.FROSTBOLT or args.spellId == SPELLS.FIREBALL then
+	if args.spellId == SPELLS.FROSTBOLT.ID or args.spellId == SPELLS.FIREBALL.ID then
 		--Figure out the current group number
 		self.vb.current_kick_group = self.vb.current_kick_group + 1
 		if self.vb.current_kick_group == (self.vb.kick_groups+1) then
@@ -137,43 +137,43 @@ function mod:SPELL_CAST_START(args)
 		frost_fire_kick_warning:Show(args.sourceName, self.vb.current_kick_group)
 		frost_fire_kick_warning:Play(kick_audio_string)
 	--Flame Wreath warning to stop moving
-	elseif args.spellId == SPELLS.FLAME_WREATH_CAST then
+	elseif args.spellId == SPELLS.FLAME_WREATH_CAST.ID then
 		flame_wreath_warning:Show()
 		flame_wreath_warning:Play("aesoon")
 		flame_wreath_timer:Start(TIMERS[difficulty].FLAME_WREATH_CD)
 	--Give warning to kill adds
-	elseif args.spellId == SPELLS.WATER_BOLT and self:AntiSpam() then
+	elseif args.spellId == SPELLS.WATER_BOLT.ID and self:AntiSpam() then
 		kill_adds_warning:Show()
 	--Give warning to runaway from arcane explosion
-	elseif args.spellId == SPELLS.ARCANE_EXPLOSION then
+	elseif args.spellId == SPELLS.ARCANE_EXPLOSION.ID then
 		arcane_explosion_warning:Show()
 		arcane_explosion_warning:Play("runaway")
 		arcane_explosion_timer:Start(TIMERS[difficulty].ARCANE_EXPLOSION_CD)
-	elseif args.spellId == SPELLS.SUMMON_BLIZZARD then
+	elseif args.spellId == SPELLS.SUMMON_BLIZZARD.ID then
 		summon_blizzard_timer:Start(TIMERS[difficulty].SUMMON_BLIZZARD_CD)
 	end
 end
 
 function mod:SPELL_AURA_APPLIED(args)
 	--Chains of ice dispell warning
-	if args.spellId == SPELLS.CHAINS_OF_ICE then
+	if args.spellId == SPELLS.CHAINS_OF_ICE.ID then
 		warning_chains_of_ice:Show(args.destName)
 	end
 end
 
 function mod:SPELL_DAMAGE(sourceGUID, _, _, destGUID, _, _, spellId)
 	--Arcane Missiles warning
-	if spellId == SPELLS.ARCANE_MISSILES and destGUID == player_guid and self:AntiSpam() then
+	if spellId == SPELLS.ARCANE_MISSILES.ID and destGUID == player_guid and self:AntiSpam() then
 		arcane_missiles_warning:Show()
 		arcane_missiles_warning:Play("targetyou")
 	end
 end
 
+mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
 function mod:SPELL_PERIODIC_DAMAGE(_, _, _, destGUID, _, _, spellId, spellName)
     --Blizzard move warning
-	if (spellId == SPELLS.BLIZZARD) and destGUID == player_guid and self:AntiSpam() then
+	if (spellId == SPELLS.BLIZZARD.ID) and destGUID == player_guid and self:AntiSpam() then
 		blizzard_damage_warning:Show(spellName)
 		blizzard_damage_warning:Play("watchfeet")
 	end
 end
-mod.SPELL_PERIODIC_MISSED = mod.SPELL_PERIODIC_DAMAGE
