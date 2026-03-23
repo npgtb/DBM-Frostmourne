@@ -210,6 +210,13 @@ function mod:OnCombatStart(delay)
 	)
 end
 
+function mod:OnCombatEnd(wipe)
+    --Stop the health monitor
+	if boss_health_monitor then
+		boss_health_monitor:Cancel()
+	end
+end
+
 function mod:SPELL_CAST_START(args)
 	--Deaden casting
 	if args.spellId == SPELLS.DEADEN.ID then
