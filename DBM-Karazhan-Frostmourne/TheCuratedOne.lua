@@ -26,6 +26,7 @@ local PHASE = {
 --default to 25H difficulty for now
 local difficulty = DIFFICULTY.HEROIC_25
 local phase = PHASE.PHASE_ONE
+local phase_warning_triggerd = false
 local player_name = nil
 local player_guid = nil
 
@@ -44,9 +45,9 @@ local SPELLS = {
 
 --We transition based on his health %
 local PHASE_TRANSITION_THRESHOLDS = {
-	[PHASE.PHASE_ONE] = {THRESHOLD = 75, NEXT = PHASE.PHASE_TWO},
-	[PHASE.PHASE_TWO] = {THRESHOLD = 40, NEXT = PHASE.PHASE_THREE},
-	[PHASE.PHASE_THREE] = {THRESHOLD = 15, NEXT = PHASE.PHASE_FOUR}
+	[PHASE.PHASE_ONE] = {THRESHOLD = 75, WARNING = 80, NEXT = PHASE.PHASE_TWO},
+	[PHASE.PHASE_TWO] = {THRESHOLD = 40, WARNING = 45, NEXT = PHASE.PHASE_THREE},
+	[PHASE.PHASE_THREE] = {THRESHOLD = 15, WARNING = 20, NEXT = PHASE.PHASE_FOUR}
 }
 
 --Timing table
@@ -217,13 +218,26 @@ local blood_mirror_timer = mod:NewCDTimer(DBM_KFU.TIMER_DISABLED, SPELLS.BLOOD_M
 --Aura of fear warning
 local warning_aura_of_fear = mod:NewSpecialWarningLookAway(SPELLS.AURA_OF_FEAR.ID, nil, nil, nil, 1, 2)
 --Phase warning
+--Phase warning
+local warning_phase_soon = {
+	[PHASE.PHASE_ONE] = mod:NewPrePhaseAnnounce(2),
+	[PHASE.PHASE_TWO] = mod:NewPrePhaseAnnounce(3),
+	[PHASE.PHASE_THREE] = mod:NewPrePhaseAnnounce(4)
+}
 local warning_new_phase = mod:NewPhaseAnnounce(2, 2, nil, nil, nil, nil, nil, 2)
 
-function mod:OnCombatStart(delay)
+--Fetch and reset boss data on combat start
+local function CombatStartFetch()
 	--Fetch difficulty from dbm
 	difficulty = DBM:GetCurrentInstanceDifficulty() or DIFFICULTY.HEROIC_25
+	phase = PHASE.PHASE_ONE
+	phase_warning_triggerd = false
 	player_name = UnitName("player")
 	player_guid = UnitGUID("player")
+end
+
+function mod:OnCombatStart(delay)
+	CombatStartFetch()
 	--If the boss1 unit does not exist, UNIT_HEALTH events won't fire
 	if not UnitExists(boss_unit_id) then
 		print("Monitoring boss health manually")
@@ -364,6 +378,7 @@ end
 --Handle the phase transitions
 local function TransitPhase(next_phase)
 	phase = next_phase
+	phase_warning_triggerd = false
 	if next_phase == PHASE.PHASE_TWO then
 		warning_new_phase:Play("ptwo")
 		DBM_KFU.TryStartTimer(
@@ -387,11 +402,20 @@ end
 
 function mod:ShouldTransitionPhase(boss_health)
 	--Based on the current phase, check if we should transition to the next phase
-	if 
-		PHASE_TRANSITION_THRESHOLDS[phase] ~= nil and
-		boss_health <= PHASE_TRANSITION_THRESHOLDS[phase].THRESHOLD 
-	then
-		TransitPhase(PHASE_TRANSITION_THRESHOLDS[phase].NEXT)
+	if PHASE_TRANSITION_THRESHOLDS[phase] ~= nil then
+		--Should we transition the phase?
+		if boss_health <= PHASE_TRANSITION_THRESHOLDS[phase].THRESHOLD then
+			TransitPhase(PHASE_TRANSITION_THRESHOLDS[phase].NEXT)
+		--Should we give pre warning?
+		elseif 
+			boss_health <= PHASE_TRANSITION_THRESHOLDS[phase].WARNING and
+			warning_phase_soon[phase] ~= nil and
+			not phase_warning_triggerd
+		then
+				phase_warning_triggerd = true
+				warning_phase_soon[phase]:Show()
+				warning_phase_soon[phase]:Play("nextphasesoon")
+		end
 	end
 end
 
