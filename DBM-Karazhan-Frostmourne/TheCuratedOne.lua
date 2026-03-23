@@ -249,8 +249,6 @@ function mod:OnCombatStart(delay)
 		mod.creatureId, manual_spell_monitors,
 		function(spell_name) mod:SPELL_MANUAL_MONITOR(spell_name) end
 	)
-	--Assume berserk ends it all
-	mod:SetWipeTime(TIMERS[difficulty].BERSERK)
     --Register d&d and coldflame move warnings
 	self:RegisterShortTermEvents(
 		DBM_KFU.EventString("SPELL_PERIODIC_DAMAGE", SPELLS.DEATH_AND_DECAY.ID, SPELLS.COLDFLAME.ID),

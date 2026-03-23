@@ -160,8 +160,6 @@ function mod:OnCombatStart(delay)
 		--Work around the issue
 		boss_health_monitor = DBM_KFU.MonitorBossHealth(mod.creatureId, function(health) mod:ShouldTransitionPhase(health) end)
 	end
-	--Assume berserk ends it all
-	mod:SetWipeTime(TIMERS[difficulty].BERSERK)
     --Register Blizzard move warnings
 	self:RegisterShortTermEvents(
 		DBM_KFU.EventString("SPELL_PERIODIC_DAMAGE", SPELLS.BLIZZARD.ID),
