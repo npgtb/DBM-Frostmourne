@@ -66,6 +66,28 @@ function DBM_KFU.FindBossUnitFromTargeting(creature_id)
 	return nil
 end
 
+--Create and Get a storage block for the given creatureid
+local function GetStorageForCreature(creature_id, storage_bucket_id)
+	DBM_KFU.storage = (DBM_KFU.storage or {})
+	DBM_KFU.storage[creature_id] = (DBM_KFU.storage[creature_id] or {})
+	DBM_KFU.storage[creature_id][storage_bucket_id] = (DBM_KFU.storage[creature_id][storage_bucket_id] or {})
+	return DBM_KFU.storage[creature_id][storage_bucket_id]
+end
+
+--Reset a monitor object
+local function ResetMonitor(monitor_obj)
+	if monitor_obj then
+		--Cancel previous timers
+		if monitor_obj.timer_obj then
+			monitor_obj.timer_obj:Cancel()
+			monitor_obj.timer_obj = nil
+		end
+		--Zero the data
+		monitor_obj.unit = nil
+		monitor_obj.count = 0
+	end
+end
+
 --Manual function for polling boss health, based on timer
 local function FindAndGetHealth(creature_id, storage, callback_func, max_attempts)
 	max_attempts = max_attempts or 60
@@ -94,8 +116,9 @@ end
 --Access point to the manual boss health monitoring
 function DBM_KFU.MonitorBossHealth(creature_id, callback_func, freaquency)
 	freaquency = freaquency or 0.5
-	local storage = {}
-	--Start timer
+	--Get storage and reset any previous monitors
+	local storage = GetStorageForCreature(creature_id, "health_monitor")
+	ResetMonitor(storage)
 	storage.timer_obj = C_Timer.NewTicker(
 		freaquency, 
 		function()
@@ -131,8 +154,9 @@ end
 --Access point to the manual boss casting monitoring
 function DBM_KFU.MonitorBossCasting(creature_id, spell_names, callback_func, freaquency)
 	freaquency = freaquency or 1
-	local storage = {}
-	--Start timer
+	--Get storage and stop any previous timers
+	local storage = GetStorageForCreature(creature_id, "casting_monitor")
+	ResetMonitor(storage)
 	storage.timer_obj = C_Timer.NewTicker(
 		freaquency, 
 		function()
