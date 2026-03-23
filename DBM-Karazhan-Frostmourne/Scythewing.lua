@@ -180,14 +180,27 @@ local timer_frostbolt_volley = mod:NewCDTimer(DBM_KFU.TIMER_DISABLED, SPELLS.FRO
 --Tailsweep CD timer
 local timer_tailsweep = mod:NewCDTimer(DBM_KFU.TIMER_DISABLED, SPELLS.TAILSWEEP.ID, nil, nil, nil, 2)
 --Phase warning
-local warning_phase_soon = mod:NewPrePhaseAnnounce(2, 2)
+--Phase warning
+local warning_phase_soon = {
+	[PHASE.PHASE_ONE] = mod:NewPrePhaseAnnounce(2),
+	[PHASE.PHASE_TWO] = mod:NewPrePhaseAnnounce(3),
+	[PHASE.PHASE_THREE] = mod:NewPrePhaseAnnounce(4)
+}
 local warning_new_phase = mod:NewPhaseAnnounce(2, 2, nil, nil, nil, nil, nil, 2)
 
-function mod:OnCombatStart(delay)
+--Fetch and reset boss data on combat start
+local function CombatStartFetch()
 	--Fetch difficulty from dbm
 	difficulty = DBM:GetCurrentInstanceDifficulty() or DIFFICULTY.HEROIC_25
+	phase = PHASE.PHASE_ONE
+	phase_warning_triggerd = false
 	player_name = UnitName("player")
 	player_guid = UnitGUID("player")
+end
+
+
+function mod:OnCombatStart(delay)
+	CombatStartFetch()
 	--If the boss1 unit does not exist, UNIT_HEALTH events won't fire
 	if not UnitExists(boss_unit_id) then
 		print("Monitoring boss health manually")
@@ -285,14 +298,18 @@ end
 function mod:ShouldTransitionPhase(boss_health)
 	--Based on the current phase, check if we should transition to the next phase
 	if PHASE_TRANSITION_THRESHOLDS[phase] ~= nil then
-		if 
-			boss_health <= PHASE_TRANSITION_THRESHOLDS[phase].THRESHOLD 
-		then
+		--Should we transition the phase?
+		if boss_health <= PHASE_TRANSITION_THRESHOLDS[phase].THRESHOLD then
 			TransitPhase(PHASE_TRANSITION_THRESHOLDS[phase].NEXT)
-		elseif boss_health <= PHASE_TRANSITION_THRESHOLDS[phase].WARNING and not phase_warning_triggerd then
+		--Should we give pre warning?
+		elseif 
+			boss_health <= PHASE_TRANSITION_THRESHOLDS[phase].WARNING and
+			warning_phase_soon[phase] ~= nil and
+			not phase_warning_triggerd
+		then
 				phase_warning_triggerd = true
-				warning_phase_soon:Show()
-				warning_phase_soon:Play("nextphasesoon")
+				warning_phase_soon[phase]:Show()
+				warning_phase_soon[phase]:Play("nextphasesoon")
 		end
 	end
 end
