@@ -16,9 +16,9 @@
 ## SavedVariablesPerCharacter: DBM_UsedProfile, DBM_UseDualProfile, DBM_CharSavedRevision, DBM_SavedOptions
 ## LoadOnDemand: 0
 ## DefaultState: enabled
-## Author: Barsoom, Bunny67, Zidras, DBM-Frostmourne contributors, original DBM team
+## Author: Broizter, Barsoom, Bunny67, Zidras, DBM-Frostmourne contributors, original DBM team
 ## Version: 11.7.4
-## X-Website: https://github.com/broizter/DBM-Frostmourne/
+## X-Website: https://github.com/npgtb/DBM-Frostmourne/
 
 compat.lua
 

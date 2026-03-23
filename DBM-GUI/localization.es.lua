@@ -7,7 +7,7 @@ local L = DBM_GUI_L
 
 L.TranslationByPrefix		= "Retail backport por "
 L.TranslationBy			= "Barsoom, Bunny67, Zidras"
-L.Website					= "Visita nuestro canal de Discord (|cFF73C2FBhttps://github.com/broizter/DBM-Frostmourne|r)."
+L.Website					= "Visita nuestro canal de Discord (|cFF73C2FBhttps://github.com/npgtb/DBM-Frostmourne|r)."
 L.WebsiteButton				= "Página web"
 
 L.OTabBosses	= "Jefes"

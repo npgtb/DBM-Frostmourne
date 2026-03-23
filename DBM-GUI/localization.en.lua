@@ -5,10 +5,10 @@ local CL = DBM_CORE_L
 
 L.MainFrame 						= CL.DEADLY_BOSS_MODS -- NO TRANSLATE
 
-L.DBMWarmane						= CL.DBM .. "-Frostmourne by Zin (broizter)"
+L.DBMWarmane						= CL.DBM .. "-Frostmourne by Broizter, expanded by Npgtb"
 L.TranslationByPrefix				= "Retail backport by "
 L.TranslationBy						= "Barsoom, Bunny67, Zidras"
-L.Website							= "Visit us at |cFF73C2FBhttps://github.com/broizter/DBM-Frostmourne|r"
+L.Website							= "Visit us at |cFF73C2FBhttps://github.com/npgtb/DBM-Frostmourne|r"
 L.WebsiteButton						= "Website"
 
 L.OTabBosses						= "Boss Options"--Deprecated and will be deleted once tabs no longer use this
