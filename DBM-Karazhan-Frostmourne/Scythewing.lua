@@ -68,7 +68,7 @@ mod.BEHAVIOR = {
 		WARNING = {type = "NewSpecialWarningGTFO"},
 		TIMER = {type = "NewCDTimer"},
 		TIMER_STARTS = {PHASE_START_2 = {}, SPELL_CAST_START = {}},
-		WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
+		WARNING_SHOW = {SPELL_CAST_START = {}},
 		PLAY_SOUND = {SPELL_CAST_START = {sound = "runaway"}}
 	}
 }
