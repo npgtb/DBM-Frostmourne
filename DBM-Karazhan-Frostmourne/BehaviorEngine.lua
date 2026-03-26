@@ -573,6 +573,11 @@ function DBM_BEHAVIOR.IsDps(boss_mod, args, spell_id, update_subtype)
 	return boss_mod:IsDps()
 end
 
+--Common conditions, Are we either the target or source of the spell (Spells that bind two player together)
+function DBM_BEHAVIOR.IsTargetOrDest(boss_mod, args, spell_id, update_subtype)
+	return args.destGUID == boss_mod.player_guid or args.sourceGUID == boss_mod.player_guid
+end
+
 --Common conditions, Something happening to us
 function DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype)
 	return args.destGUID == boss_mod.player_guid

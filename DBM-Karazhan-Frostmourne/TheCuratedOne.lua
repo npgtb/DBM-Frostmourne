@@ -72,15 +72,15 @@ mod.BEHAVIOR = {
 		WARNING = {type = "NewSpecialWarningYou"},
 		TIMER = {type = "NewCDTimer"},
 		TIMER_STARTS = {PHASE_START_3 = {}, SPELL_AURA_APPLIED = {}},
-		WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
-		PLAY_SOUND = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
+		WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.IsTargetOrDest}},
+		PLAY_SOUND = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.IsTargetOrDest, sound = "targetyou"}}
 	},
-	[mod.SPELLS.SOUL_FLAY.ID] = { --TODO: On you
+	[mod.SPELLS.SOUL_FLAY.ID] = {
 		WARNING = {type = "NewSpecialWarningYou"},
 		WARNING_SHOW = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf}},
 		PLAY_SOUND = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
 	},
-	[mod.SPELLS.MORTAL_FOUND.ID] = { --TODO: stack count, truth function => takes args returns if should go trough. pull args list too 
+	[mod.SPELLS.MORTAL_FOUND.ID] = {
 		WARNING = {type = "NewSpecialWarningStack", threshold = 4},
 		WARNING_SHOW = {
 			SPELL_AURA_APPLIED_DOSE = {
