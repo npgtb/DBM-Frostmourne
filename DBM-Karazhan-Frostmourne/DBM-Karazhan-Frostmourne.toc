@@ -29,9 +29,10 @@
 
 localization.en.lua
 
+BehaviorEngine.lua
 Utility.lua
 MaidenOfRot.lua
 TheCuratedOne.lua
-WotlkShadeOfAran.lua
 Scythewing.lua
+ShadeOfAran.lua
 ArchMageAntonidas.lua
