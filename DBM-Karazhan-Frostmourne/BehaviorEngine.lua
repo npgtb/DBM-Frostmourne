@@ -340,7 +340,7 @@ local function HandleWarningUpdate(spell_id, behavior, event, boss_mod, args)
 			then
 				--Show warning
 				local injection = args[trigger_data.inject]
-				warning:Show(args[trigger_data])
+				warning:Show(injection)
 			end
 		end
 	end
