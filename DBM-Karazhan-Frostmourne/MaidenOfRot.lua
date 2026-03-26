@@ -52,8 +52,9 @@ mod.BEHAVIOR = {
 		PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
 	},
 	[mod.SPELLS.FRENZY.ID] = {
-		WARNING = {type = "NewSpecialWarningYou", filter = "TANK|HEALER"},
+		WARNING = {type = "NewSpecialWarningDefensive"},
 		WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+		PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "defensive", condition = DBM_BEHAVIOR.IsTank}}
 	}
 }
 local boss_unit_id = "boss1"
@@ -65,7 +66,6 @@ function mod:OnCombatStart(delay)
 end
 
 function mod:OnCombatEnd(wipe)
-    --Stop the health monitor
 	DBM_BEHAVIOR.StopPhaseMonitor(mod)
 end
 

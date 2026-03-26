@@ -36,7 +36,8 @@ DBM_BEHAVIOR.WARNING_TYPE = {
 	NewSpecialWarningInterruptCount = "NewSpecialWarningInterruptCount",
 	NewSpecialWarningMove = "NewSpecialWarningMove",
 	NewSpecialWarning = "NewSpecialWarning",
-	NewSpellAnnounce = "NewSpellAnnounce"
+	NewSpellAnnounce = "NewSpellAnnounce",
+	NewSpecialWarningDefensive = "NewSpecialWarningDefensive"
 }
 
 --Define some warning default parameters for the behavior system
@@ -49,8 +50,9 @@ DBM_BEHAVIOR.WARNING_DEFAULT_PARAMS = {
     NewSpecialWarningLookAway = { spell_id = "", a = false, b = false, c = false, sound = 1, icon = 2 },
     NewSpecialWarningInterruptCount = { spell_id = "", filter = "HasInterrupt", b = false, c = false, sound = 1, icon = 2 },
     NewSpecialWarningMove = { spell_id = "", a = false, b = false, c = false, sound = 1, icon = 2 },
-	NewSpecialWarning = { text = "", a = nil, b = nil, c = nil, sound = 1, icon = 2 },
-    NewSpellAnnounce = { spell_id = "", a = 3, b = false, filter = "" }
+	NewSpecialWarning = { text = "", a = false, b = false, c = false, sound = 1, icon = 2 },
+    NewSpellAnnounce = { spell_id = "", a = 3, b = false, filter = "" },
+	NewSpecialWarningDefensive = {spell_id = "", a = false, b = false, c = false, icon = 1, sound = 2}
 }
 
 --Define timer types for the behavior system
@@ -554,6 +556,21 @@ function DBM_BEHAVIOR.CombatStartFetchData(boss_mod)
 	boss_mod.phase = DBM_BEHAVIOR.PHASES.PHASE_ONE
 	boss_mod.player_name = UnitName("player")
 	boss_mod.player_guid = UnitGUID("player")
+end
+
+--Common conditions, Are we a tank?
+function DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype)
+	return boss_mod:IsTank()
+end
+
+--Common conditions, Are we a healer?
+function DBM_BEHAVIOR.IsHealer(boss_mod, args, spell_id, update_subtype)
+	return boss_mod:IsHealer()
+end
+
+--Common conditions, Are we a dps?
+function DBM_BEHAVIOR.IsDps(boss_mod, args, spell_id, update_subtype)
+	return boss_mod:IsDps()
 end
 
 --Common conditions, Something happening to us
