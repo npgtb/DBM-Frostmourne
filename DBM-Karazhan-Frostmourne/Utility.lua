@@ -1,8 +1,51 @@
 --Shared utility namespace for the DBM_Karazhan_Frostmourne module
 DBM_KFU = DBM_KFU or {}
 
---Common flag for a disabled timer
-DBM_KFU.TIMER_DISABLED = 0
+--Solves the spells name from the spell table using its id
+function DBM_KFU.SolveSpellName(spells, spell_id)
+	if spell_id == DBM_BEHAVIOR.SPELL_UNKOWN_ID then return "Unkown" end
+	--Loop trough spell table until our spell hits
+	if spells ~= nil then
+		for spell_key, spell_data in pairs(spells) do
+			if spell_data.ID == spell_id then
+				return spell_data.NAME
+			end
+		end
+	end
+	return nil
+end
+
+--Solves the spells id from the spell table using its name
+function DBM_KFU.SolveSpellId(spells, spell_name)
+	if spell_name == "Unkown" then return DBM_BEHAVIOR.SPELL_UNKOWN_ID end
+	--Loop trough spell table until our spell hits
+	if spells ~= nil then
+		for spell_key, spell_data in pairs(spells) do
+			if spell_data.NAME == spell_name then
+				return spell_data.ID
+			end
+		end
+	end
+	return nil
+end
+
+--Helper function for retrieving transition data
+function DBM_KFU.GetTransitionThreshold(transition_table, difficulty, phase)
+	if transition_table ~= nil and transition_table[difficulty] ~= nil then
+		--See if the phase has a specific override table
+		if transition_table[difficulty][phase] ~= nil then
+			return transition_table[difficulty][phase]
+		--See if we have a fallback default phase table
+		elseif 
+			transition_table[difficulty]["TRANSITION_DEFAULT"] ~= nil and
+			transition_table[difficulty]["TRANSITION_DEFAULT"][phase] ~= nil 
+		then
+			return transition_table[difficulty]["TRANSITION_DEFAULT"][phase]
+		end
+	end
+	--If we can't find the ability in current difficulty/phase setting then mark it as disabled
+	return nil
+end
 
 --Helper to build the event string
 function DBM_KFU.EventString(event_name, ...)
@@ -16,19 +59,27 @@ function DBM_KFU.EventString(event_name, ...)
 end
 
 --Helper function for retrieving timers
-function DBM_KFU.GetTiming(timing_table, difficulty, phase, ability)
-	if timing_table ~= nil and timing_table[difficulty] ~= nil then
-		--See if the phase has a specific override table
-		if timing_table[difficulty][phase] ~= nil then
-			if timing_table[difficulty][phase][ability] ~= nil then
-				return timing_table[difficulty][phase][ability]
+function DBM_KFU.GetTiming(timing_table, difficulty, phase, ability, event)
+	local difficulty_table = timing_table[difficulty]
+	--Do we have difficulty level info?
+	if difficulty_table ~= nil then
+		local phase_default_table = difficulty_table.PHASE_DEFAULT
+		local phase_table = difficulty_table[phase]
+		--What about phase level?
+		if phase_table ~= nil then
+			local ability_table = phase_table[ability]
+			--Does the ability have timings here?
+			if ability_table ~= nil then
+				--Prefer event specific timings over default
+				return ability_table[event] or ability_table.DEFAULT
 			end
-		--See if we have a fallback default phase table
-		elseif 
-			timing_table[difficulty]["PHASE_DEFAULT"] ~= nil and
-			timing_table[difficulty]["PHASE_DEFAULT"][ability] ~= nil 
-		then
-			return timing_table[difficulty]["PHASE_DEFAULT"][ability]
+		--Fallback to the default timing table
+		elseif phase_default_table ~= nil then
+			local ability_table = phase_default_table[ability]
+			if ability_table ~= nil then
+				--Prefer event specific timings over default
+				return ability_table[event] or ability_table.DEFAULT
+			end
 		end
 	end
 	--If we can't find the ability in current difficulty/phase setting then mark it as disabled
@@ -171,4 +222,15 @@ function DBM_KFU.MonitorBossCasting(creature_id, spell_names, callback_func, fre
 	)
 	--Return handle for the mod
 	return storage.timer_obj
+end
+
+--Debug function layer over dbm debug to accept multiple parameters
+function DBM_KFU.Debug(...)
+    local args = {...}
+    local parts = {}
+    for i = 1, #args do
+        parts[#parts + 1] = tostring(args[i])
+    end
+    local msg = table.concat(parts, " ")
+    DBM:Debug(msg)
 end
