@@ -171,7 +171,7 @@ end
 function mod:OnCombatStart(delay)
 	DBM_BEHAVIOR.CombatStartFetchData(mod)
 	DBM_BEHAVIOR.StartPhaseMonitor(mod, boss_unit_id)
-	DBM_BEHAVIOR.HandleModelEvent("ON_COMBAT_START", mod, {offset=delay})
+	DBM_BEHAVIOR.HandleModelEvent("ON_COMBAT_START", mod, {offset=-delay})
 end
 
 function mod:OnCombatEnd(wipe)
