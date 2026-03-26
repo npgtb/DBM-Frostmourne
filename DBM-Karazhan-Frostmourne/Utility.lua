@@ -255,3 +255,49 @@ function DBM_KFU.KnowsInteruptSpell()
 	end
 	return false
 end
+
+--Joink'd from core but we gonna make it useful
+DBM_KFU.CLEANSE_SPELLS = {
+	["magic"] = {
+		[527] = true,--Priest: Dispel Magic (Magic and Disease)
+		[32375] = true,--Priest: Mass Dispel (Magic and Disease)
+		[4987] = true,--Paladin: Cleanse (Magic, Poison and Disease)
+		[77130] = true,--Shaman: Purify Spirit (Magic and Curse)
+	},
+	["curse"] = {
+		[2782] = true,--Druid: Remove Curse (Curse and Poison)
+		[51886] = DBM:IsHealer() and true,--Shaman: Cleanse Spirit (Curse, Poison and Disease)
+		[475] = true,--Mage: Remove Curse (Curse)
+	},
+	["poison"] = {
+		[2782] = true,--Druid: Remove Corruption (Curse and Poison)
+		[2893] = true,--Druid: Abolish Poison (Poison)
+		[8946] = true,--Druid: Cure Poison (Poison)
+		[1152] = true,--Paladin: Purify (Poison and Disease)
+		[4987] = true,--Paladin: Cleanse (Magic, Poison and Disease)
+		[526] = true,--Shaman: Cure Toxins (Poison and Disease)
+		[51886] = DBM:IsHealer() and true,--Shaman: Cleanse Spirit (Curse, Poison and Disease)
+	},
+	["disease"] = {
+		[527] = true,--Priest: Dispel Magic (Magic and Disease)
+		[528] = true,--Priest: Cure Disease (Disease)
+		[552] = true,--Priest: Abolish Disease (Disease)
+		[32375] = true,--Priest: Mass Dispel (Magic and Disease)
+		[1152] = true,--Paladin: Purify (Poison and Disease)
+		[4987] = true,--Paladin: Cleanse (Magic, Poison and Disease)
+		[526] = true,--Shaman: Cure Toxins (Poison and Disease)
+		[51886] = DBM:IsHealer() and true,--Shaman: Cleanse Spirit (Curse, Poison and Disease)
+	},
+}
+
+-- Checks if the current player knows any decurse spells
+function DBM_KFU.CanCleanseType(type)
+	if type ~= nil and DBM_KFU.CLEANSE_SPELLS[type] ~= nil then
+		for spell_id, enabled in pairs(DBM_KFU.CLEANSE_SPELLS[type]) do
+			if enabled and IsSpellKnown(spell_id) then
+				return true
+			end
+		end
+	end
+	return false
+end

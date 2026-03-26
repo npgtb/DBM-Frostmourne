@@ -557,6 +557,10 @@ function DBM_BEHAVIOR.CombatStartFetchData(boss_mod)
 	boss_mod.player_name = UnitName("player")
 	boss_mod.player_guid = UnitGUID("player")
 	boss_mod.player_can_kick = DBM_KFU.KnowsInteruptSpell()
+	boss_mod.player_can_dispell = DBM_KFU.CanCleanseType("magic")
+	boss_mod.player_can_decurse = DBM_KFU.CanCleanseType("curse")
+	boss_mod.player_can_cleanse_disease = DBM_KFU.CanCleanseType("disease")
+	boss_mod.player_can_cleanse_poison = DBM_KFU.CanCleanseType("poison")
 end
 
 --Common conditions, Are we a tank?
@@ -574,9 +578,29 @@ function DBM_BEHAVIOR.IsDps(boss_mod, args, spell_id, update_subtype)
 	return boss_mod:IsDps()
 end
 
---Common conditions, Are we a dps?
+--Common conditions, Can we kick?
 function DBM_BEHAVIOR.CanKick(boss_mod, args, spell_id, update_subtype)
 	return boss_mod.player_can_kick
+end
+
+--Common conditions, Can we dispell magic?
+function DBM_BEHAVIOR.CanDispell(boss_mod, args, spell_id, update_subtype)
+	return boss_mod.player_can_dispell
+end
+
+--Common conditions, Can we decurse?
+function DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype)
+	return boss_mod.player_can_decurse
+end
+
+--Common conditions, Can we dispell magic?
+function DBM_BEHAVIOR.CanCleanseDisease(boss_mod, args, spell_id, update_subtype)
+	return boss_mod.player_can_cleanse_disease
+end
+
+--Common conditions, Can we dispell magic?
+function DBM_BEHAVIOR.CanCleansePoison(boss_mod, args, spell_id, update_subtype)
+	return boss_mod.player_can_cleanse_poison
 end
 
 --Common conditions, Are we either the target or source of the spell (Spells that bind two player together)
