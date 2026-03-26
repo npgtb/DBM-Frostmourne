@@ -22,7 +22,8 @@ mod.SPELLS = {
 	CHAINS_OF_ICE = {NAME = "Chains of Ice", ID = 29991},
 	SUMMON_BLIZZARD = {NAME = "Summon Blizzard", ID = 29969},
 	BLIZZARD = {NAME = "Blizzard", ID = 29951},
-	ARCANE_MISSILES = {NAME = "Arcane Missiles", ID = 29956}
+	ARCANE_MISSILES = {NAME = "Arcane Missiles", ID = 29956},
+	COUNTERSPELL = {NAME = "Counterspell", ID = 29961}
 }
 
 --We transition based on his health %
@@ -39,10 +40,11 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 --Timing tables
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.ID] = {DEFAULT = 600},
-	[mod.SPELLS.FLAME_WREATH_CAST.ID] = {DEFAULT = 60},
-	[mod.SPELLS.ARCANE_EXPLOSION.ID] = {DEFAULT = 60},
-	[mod.SPELLS.SUMMON_BLIZZARD.ID] = {DEFAULT = 60},
-	[mod.SPELLS.CHAINS_OF_ICE.ID] = {DEFAULT = 30}
+	[mod.SPELLS.FLAME_WREATH_CAST.ID] = {DEFAULT = 63},
+	[mod.SPELLS.ARCANE_EXPLOSION.ID] = {DEFAULT = 67},
+	[mod.SPELLS.SUMMON_BLIZZARD.ID] = {DEFAULT = 63},
+	[mod.SPELLS.CHAINS_OF_ICE.ID] = {DEFAULT = 60},
+	[mod.SPELLS.COUNTERSPELL.ID] = {DEFAULT = 10}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -73,8 +75,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.CHAINS_OF_ICE.ID] = {
 		WARNING = {type = "NewSpecialWarningDispel", filter = "MagicDispeller"},
 		TIMER = {type = "NewCDTimer"},
-		TIMER_STARTS = {SPELL_AURA_APPLIED = {}},
-		WARNING_SHOW = {SPELL_AURA_APPLIED = {}}
+		TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_AURA_APPLIED = {}},
+		WARNING_SHOW = {SPELL_AURA_APPLIED = { condition = DBM_BEHAVIOR.CanDispell, inject = "destName" }}
 	},
 	[mod.SPELLS.ARCANE_MISSILES.ID] = {
 		WARNING = {type = "NewSpecialWarningYou"},
@@ -83,7 +85,14 @@ mod.BEHAVIOR = {
 	},
 	[mod.SPELLS.SUMMON_BLIZZARD.ID] = {
 		TIMER = {type = "NewCDTimer"},
-		TIMER_STARTS = {SPELL_CAST_START = {}},
+		TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
+	},
+	[mod.SPELLS.COUNTERSPELL.ID] = {
+		WARNING = {type = "NewSpecialWarningYou"},
+		TIMER = {type = "NewCDTimer"},
+		TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
+		WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
+		PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 	},
 	[mod.SPELLS.BLIZZARD.ID] = {
 		WARNING = {type = "NewSpecialWarningMove"},

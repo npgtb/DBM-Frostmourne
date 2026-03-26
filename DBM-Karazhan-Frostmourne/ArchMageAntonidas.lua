@@ -22,6 +22,7 @@ mod.SPELLS = {
     IMPENDING_DESPAIR = {NAME = "Impending Despair", ID = 72426},
     DESPAIR_STRICKEN = {NAME = "Despair Stricken", ID = 72428},
     AURA_OF_SUFFERING = {NAME = "Aura of Suffering", ID = 41292},
+	SPELL_DISRUPTION = {NAME = "Spell Disruption", ID = 29310}
 }
 
 --We transition based on his health %
@@ -40,7 +41,8 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.ID] = {DEFAULT = 600},
 	[mod.SPELLS.BLIGHT.ID] = {DEFAULT = 15},
-	[mod.SPELLS.IMPENDING_DESPAIR.ID] = {DEFAULT = 15}
+	[mod.SPELLS.IMPENDING_DESPAIR.ID] = {DEFAULT = 15},
+	[mod.SPELLS.SPELL_DISRUPTION.ID] = {DEFAULT = 30}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -67,6 +69,13 @@ mod.BEHAVIOR = {
 		TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
 		WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
 		PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow"}}
+	},
+	[mod.SPELLS.SPELL_DISRUPTION.ID] = {
+		WARNING = {type = "NewSpecialWarningYou"},
+		TIMER = {type = "NewCDTimer"},
+		TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
+		WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
+		PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 	},
 	[mod.SPELLS.CHILL.ID] = {
 		WARNING = {type = "NewSpecialWarningGTFO"},
