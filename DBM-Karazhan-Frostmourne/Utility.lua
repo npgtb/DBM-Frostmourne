@@ -234,3 +234,24 @@ function DBM_KFU.Debug(...)
     local msg = table.concat(parts, " ")
     DBM:Debug(msg)
 end
+
+DBM_KFU.INTERUPT_SPELLS = {
+	[1766] = true,--Rogue Kick
+	[2139] = true,--Mage Counterspell
+	[6552] = true,--Warrior Pummel
+	[15487] = true,--Priest Silence
+	[19647] = true,--Warlock pet Spell Lock
+	[47528] = true,--Death Knight Mind Freeze
+	[49377] = true,--Druid Feral Charge
+	[57994] = true,--Shaman Wind Shear
+}
+--Checks if the current player know any of the interupt spells
+function DBM_KFU.KnowsInteruptSpell()
+	--Check all interupt spells
+	for spell_id, _ in pairs(DBM_KFU.INTERUPT_SPELLS) do
+		if IsSpellKnown(spell_id) then
+			return true
+		end
+	end
+	return false
+end

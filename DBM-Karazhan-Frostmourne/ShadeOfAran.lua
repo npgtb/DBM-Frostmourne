@@ -96,7 +96,7 @@ mod.BEHAVIOR = {
 			SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "runaway"}
 		}
 	},
-	[DBM_BEHAVIOR.SPELL_UNKOWN_ID] = {
+	[DBM_BEHAVIOR.SPELL_UNKNOWN_ID] = {
 		WARNING = {type = "NewSpecialWarning", text = "Kill the adds!"},
 		WARNING_SHOW = {PHASE_START_2 = {}},
 	},
@@ -106,7 +106,9 @@ mod.BEHAVIOR = {
 			SPELL_CAST_START = {
 				override = function (boss_mod, trigger_data, warning, args)
 					--Warn the current kick group to kick the caster
-					warning:Show(args.sourceName, boss_mod.SolveKickGroup())
+					if boss_mod.player_can_kick then
+						warning:Show(args.sourceName, boss_mod.SolveKickGroup())
+					end
 				end
 			}
 		},
@@ -115,8 +117,11 @@ mod.BEHAVIOR = {
 				sound = "kick",
 				override = function (boss_mod, trigger_data, warning, args)
 					--Execute order Warning => Play. We only play sound here
-					local kick_audio_string = trigger_data.sound .. boss_mod.vb.current_kick_group .. "r"
-					warning:Play(kick_audio_string)
+					if boss_mod.player_can_kick then
+						local base_sound = trigger_data.sound or "kick"
+						local kick_audio_string = base_sound .. boss_mod.vb.current_kick_group .. "r"
+						warning:Play(kick_audio_string)
+					end
 				end
 			}
 		}
@@ -127,7 +132,9 @@ mod.BEHAVIOR = {
 			SPELL_CAST_START = {
 				override = function (boss_mod, trigger_data, warning, args)
 					--Warn the current kick group to kick the caster
-					warning:Show(args.sourceName, boss_mod.SolveKickGroup())
+					if boss_mod.player_can_kick then
+						warning:Show(args.sourceName, boss_mod.SolveKickGroup())
+					end
 				end
 			}
 		},
@@ -136,8 +143,11 @@ mod.BEHAVIOR = {
 				sound = "kick",
 				override = function (boss_mod, trigger_data, warning, args)
 					--Execute order Warning => Play. We only play sound here
-					local kick_audio_string = trigger_data.sound .. boss_mod.vb.current_kick_group .. "r"
-					warning:Play(kick_audio_string)
+					if boss_mod.player_can_kick then
+						local base_sound = trigger_data.sound or "kick"
+						local kick_audio_string = base_sound .. boss_mod.vb.current_kick_group .. "r"
+						warning:Play(kick_audio_string)
+					end
 				end
 			}
 		}
@@ -151,11 +161,11 @@ mod.vb.current_kick_group = 0
 --Solves the current kick group
 function mod:SolveKickGroup()
 	--Solve the current kick group number
-	boss_mod.vb.current_kick_group = boss_mod.vb.current_kick_group + 1
-	if boss_mod.vb.current_kick_group > boss_mod.vb.kick_group_count then
-		boss_mod.vb.current_kick_group = 1
+	mod.vb.current_kick_group = mod.vb.current_kick_group + 1
+	if mod.vb.current_kick_group > mod.vb.kick_group_count then
+		mod.vb.current_kick_group = 1
 	end
-	return boss_mod.vb.current_kick_group
+	return mod.vb.current_kick_group
 end
 
 function mod:OnCombatStart(delay)

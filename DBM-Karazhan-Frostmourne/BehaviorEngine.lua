@@ -3,7 +3,7 @@ DBM_BEHAVIOR = DBM_BEHAVIOR or {}
 
 --Common flag for a disabled timer
 DBM_BEHAVIOR.TIMER_DISABLED = 0
-DBM_BEHAVIOR.SPELL_UNKOWN_ID = 0
+DBM_BEHAVIOR.SPELL_UNKNOWN_ID = 0
 
 --Possible difficulties
 DBM_BEHAVIOR.DIFFICULTY = {
@@ -556,6 +556,7 @@ function DBM_BEHAVIOR.CombatStartFetchData(boss_mod)
 	boss_mod.phase = DBM_BEHAVIOR.PHASES.PHASE_ONE
 	boss_mod.player_name = UnitName("player")
 	boss_mod.player_guid = UnitGUID("player")
+	boss_mod.player_can_kick = DBM_KFU.KnowsInteruptSpell()
 end
 
 --Common conditions, Are we a tank?
@@ -571,6 +572,11 @@ end
 --Common conditions, Are we a dps?
 function DBM_BEHAVIOR.IsDps(boss_mod, args, spell_id, update_subtype)
 	return boss_mod:IsDps()
+end
+
+--Common conditions, Are we a dps?
+function DBM_BEHAVIOR.CanKick(boss_mod, args, spell_id, update_subtype)
+	return boss_mod.player_can_kick
 end
 
 --Common conditions, Are we either the target or source of the spell (Spells that bind two player together)
