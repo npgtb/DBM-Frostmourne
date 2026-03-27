@@ -18,7 +18,33 @@ mod.SPELLS = {
     PRESENCE_OF_FROST = {KEY = "PRESENCE_OF_FROST", NAME = "Presence of Frost", ID = {DEFAULT = 9250005}},
     PRESENCE_OF_SHADOW = {KEY = "PRESENCE_OF_SHADOW", NAME = "Presence of Shadow", ID = {DEFAULT = 9250004}},
     CHILL = {KEY = "CHILL", NAME = "Chill", ID = {DEFAULT = 55699, [DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] =  28547}},
-    BLIGHT = {KEY = "BLIGHT", NAME = "Blight", ID = {DEFAULT = 70285}},
+    BLIGHT_SMALL = {
+		KEY = "BLIGHT_SMALL", NAME = "Blight", ID = {
+			DEFAULT = 9250042,
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 9250041
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = 9250042
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250043
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250044
+		}
+	},
+    BLIGHT_BIG = {
+		KEY = "BLIGHT_BIG", NAME = "Blight", ID = {
+			DEFAULT = 9250046,
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 9250045
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = 9250046
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250047
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250048
+		}
+	},
+	CURSE_OF_DOOM = {
+		KEY = "CURSE_OF_DOOM", NAME = "Curse of Doom", ID = {
+			DEFAULT = 9250050,
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 9250049
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = 9250050
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250051
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250052
+		}
+	},
     IMPENDING_DESPAIR = {KEY = "IMPENDING_DESPAIR", NAME = "Impending Despair", ID = {DEFAULT = 72426}},
     DESPAIR_STRICKEN = {KEY = "DESPAIR_STRICKEN", NAME = "Despair Stricken", ID = {DEFAULT = 72428}},
     AURA_OF_SUFFERING = {KEY = "AURA_OF_SUFFERING", NAME = "Aura of Suffering", ID = {DEFAULT = 41292}},
@@ -41,8 +67,9 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
 	[mod.SPELLS.BLIGHT.KEY] = {DEFAULT = 15},
-	[mod.SPELLS.IMPENDING_DESPAIR.KEY] = {DEFAULT = 15},
-	[mod.SPELLS.SPELL_DISRUPTION.KEY] = {DEFAULT = 30}
+	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {DEFAULT = 15},
+	--[mod.SPELLS.IMPENDING_DESPAIR.KEY] = {DEFAULT = 15},
+	--[mod.SPELLS.SPELL_DISRUPTION.KEY] = {DEFAULT = 30}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -58,16 +85,33 @@ mod.BEHAVIOR = {
 			TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
 		}
 	},
-	[mod.SPELLS.BLIGHT.KEY] = {
+	[mod.SPELLS.BLIGHT_SMALL.KEY] = {
+		DEFAULT = {
+			WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
+			TIMER = {type = "NewCDTimer"},
+			TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
+			WARNING_SHOW = {SPELL_AURA_APPLIED = {}}
+		}
+	},
+	[mod.SPELLS.BLIGHT_BIG.KEY] = {
 		DEFAULT = {
 			WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
 			TIMER = {type = "NewCDTimer"},
 			TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
 			WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
-			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow"}}
+			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow", condition = DBM_BEHAVIOR.CanCleanseDisease}}
 		}
 	},
-	[mod.SPELLS.IMPENDING_DESPAIR.KEY] = {
+	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {
+		DEFAULT = {
+			WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveCurse"},
+			TIMER = {type = "NewCDTimer"},
+			TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
+			WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "helpdispel", condition = DBM_BEHAVIOR.CanDecurse}}
+		}
+	},
+	--[[[mod.SPELLS.IMPENDING_DESPAIR.KEY] = {
 		DEFAULT = {
 			WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
 			TIMER = {type = "NewCDTimer"},
@@ -84,7 +128,7 @@ mod.BEHAVIOR = {
 			WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
 			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 		}
-	},
+	},--]]
 	[mod.SPELLS.CHILL.KEY] = {
 		DEFAULT = {
 			WARNING = {type = "NewSpecialWarningGTFO"},
