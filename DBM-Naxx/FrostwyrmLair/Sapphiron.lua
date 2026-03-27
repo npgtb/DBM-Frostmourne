@@ -1,6 +1,5 @@
 local mod	= DBM:NewMod("Sapphiron", "DBM-Naxx", 5)
 local L		= mod:GetLocalizedStrings()
-
 local ml = DBM:GetModLocalization("Sapphiron")
 ml:SetOptionLocalization({SpecWarnRaidCD="Show warning and timer when $spell:64205 and $spell:31821 should be used in air phase (|cfff58cbaPaladin|r only)"})
 ml:SetWarningLocalization({SpecWarnRaidCD="|TInterface\\Icons\\spell_holy_powerwordbarrier:12:12|t Dsac/AM soon |TInterface\\Icons\\Spell_Holy_AuraMastery:12:12|t"})

@@ -2,12 +2,15 @@
 DBM_KFU = DBM_KFU or {}
 
 --Solves the spells name from the spell table using its id
-function DBM_KFU.SolveSpellName(spells, spell_id)
-	if spell_id == DBM_BEHAVIOR.SPELL_UNKOWN_ID then return "Unkown" end
+function DBM_KFU.SpellIdToName(spells, spell_id, difficulty)
+	if spell_id == DBM_BEHAVIOR.SPELL_UNKNOWN_ID then return "Unkown" end
+	local default_key = "DEFAULT"
+	difficulty = difficulty or "DEFAULT"
 	--Loop trough spell table until our spell hits
 	if spells ~= nil then
 		for spell_key, spell_data in pairs(spells) do
-			if spell_data.ID == spell_id then
+			local spell_id_data = spell_data.ID[difficulty] or spell_data.ID[default_key]
+			if spell_id_data ~= nil and spell_id_data == spell_id then
 				return spell_data.NAME
 			end
 		end
@@ -16,13 +19,31 @@ function DBM_KFU.SolveSpellName(spells, spell_id)
 end
 
 --Solves the spells id from the spell table using its name
-function DBM_KFU.SolveSpellId(spells, spell_name)
-	if spell_name == "Unkown" then return DBM_BEHAVIOR.SPELL_UNKOWN_ID end
+function DBM_KFU.SpellNameToId(spells, spell_name, difficulty)
+	local default_key = "DEFAULT"
+	if spell_name == DBM_BEHAVIOR.SPELL_UNKNOWN_NAME then return DBM_BEHAVIOR.SPELL_UNKNOWN_ID end
+	difficulty = difficulty or default_key
 	--Loop trough spell table until our spell hits
 	if spells ~= nil then
 		for spell_key, spell_data in pairs(spells) do
 			if spell_data.NAME == spell_name then
-				return spell_data.ID
+				return spell_data.ID[difficulty] or spell_data.ID[default_key] 
+			end
+		end
+	end
+	return nil
+end
+
+--Solves the spells id from the spell table using its name
+function DBM_KFU.SpellKeyToId(spells, spell_key, difficulty)
+	local default_key = "DEFAULT"
+	if spell_key == DBM_BEHAVIOR.SPELL_UNKNOWN_KEY then return DBM_BEHAVIOR.SPELL_UNKNOWN_ID end
+	difficulty = difficulty or default_key
+	--Loop trough spell table until our spell hits
+	if spells ~= nil then
+		for _, spell_data in pairs(spells) do
+			if spell_data.KEY == spell_key then
+				return spell_data.ID[difficulty] or spell_data.ID[default_key] 
 			end
 		end
 	end
@@ -153,7 +174,7 @@ local function FindAndGetHealth(creature_id, storage, callback_func, max_attempt
 		storage.count = (storage.count or 0) + 1
 		--Check if we should cancel the search
 		if storage.count > max_attempts and storage.timer_obj then
-			print("Manual boss health monitoring failed!")
+			DBM_KFU.Debug("Manual boss health monitoring failed!")
 			storage.timer_obj:Cancel()
 		end
 	-- If the unit is say target, we may end up in a scenario where the unit is not the boss
@@ -168,6 +189,15 @@ local function FindAndGetHealth(creature_id, storage, callback_func, max_attempt
 			end
 		end
 	end
+end
+
+function DBM_KFU.CopyTable(t)
+    if type(t) ~= "table" then return t end
+    local copy = {}
+    for k, v in pairs(t) do
+        copy[k] = DBM_KFU.CopyTable(v)
+    end
+    return copy
 end
 
 --Access point to the manual boss health monitoring
@@ -195,7 +225,7 @@ local function FindAndMonitorCasting(creature_id, spell_names, storage, callback
 		storage.count = (storage.count or 0) + 1
 		--Check if we should cancel the search
 		if storage.count > max_attempts and storage.timer_obj then
-			print("Manual boss casting monitoring failed!")
+			DBM_KFU.Debug("Manual boss casting monitoring failed!")
 			storage.timer_obj:Cancel()
 		end
 	-- If the unit is say target, we may end up in a scenario where the unit is not the boss

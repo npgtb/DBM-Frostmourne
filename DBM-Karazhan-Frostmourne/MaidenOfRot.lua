@@ -9,9 +9,9 @@ mod:RegisterCombat("combat")
 
 --Spell ids of the counter
 mod.SPELLS = {
-	BERSERK = {NAME = "Berserk", ID = 26662},
-	DEEP_FREEZE = {NAME = "Deep Freeze", ID = 72930},
-	FRENZY = {NAME = "Frenzy", ID = 12795}
+	BERSERK = {KEY = "BERSERK", NAME = "Berserk", ID = {DEFAULT = 26662}},
+	DEEP_FREEZE = {KEY = "DEEP_FREEZE", NAME = "Deep Freeze", ID = {DEFAULT = 72930}},
+	FRENZY = {KEY = "FRENZY", NAME = "Frenzy", ID = {DEFAULT = 12795}}
 }
 
 --We transition based on his health %
@@ -28,8 +28,8 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 
 --Timing tables
 mod.TIMINGS_PHASE_DEFAULT = {
-	[mod.SPELLS.BERSERK.ID] = {DEFAULT = 600},
-	[mod.SPELLS.DEEP_FREEZE.ID] = {DEFAULT = 30}
+	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
+	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 30}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -40,21 +40,25 @@ mod.TIMINGS = {
 
 --Define the model behavior
 mod.BEHAVIOR = {
-	[mod.SPELLS.BERSERK.ID] = {
-		TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
+	[mod.SPELLS.BERSERK.KEY] = {
+		DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}
 	},
-	[mod.SPELLS.DEEP_FREEZE.ID] = {
-		WARNING = {type = "NewSpecialWarningYou"},
-		TIMER = {type = "NewCDTimer"},
-		TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
-		SCAN_TRIGGER = {SPELL_CAST_START = {}},
-		WARNING_SHOW = {ON_SCAN = {}},
-		PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
+	[mod.SPELLS.DEEP_FREEZE.KEY] = {
+		DEFAULT = {
+			WARNING = {type = "NewSpecialWarningYou"},
+			TIMER = {type = "NewCDTimer"},
+			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
+			SCAN_TRIGGER = {SPELL_CAST_START = {}},
+			WARNING_SHOW = {ON_SCAN = {}},
+			PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
+		}
 	},
-	[mod.SPELLS.FRENZY.ID] = {
-		WARNING = {type = "NewSpecialWarningDefensive"},
-		WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
-		PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "defensive", condition = DBM_BEHAVIOR.IsTank}}
+	[mod.SPELLS.FRENZY.KEY] = {
+		DEFAULT = {
+			WARNING = {type = "NewSpecialWarningDefensive"},
+			WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "defensive", condition = DBM_BEHAVIOR.IsTank}}
+		}
 	}
 }
 local boss_unit_id = "boss1"

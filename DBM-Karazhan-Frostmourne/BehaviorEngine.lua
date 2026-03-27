@@ -4,6 +4,8 @@ DBM_BEHAVIOR = DBM_BEHAVIOR or {}
 --Common flag for a disabled timer
 DBM_BEHAVIOR.TIMER_DISABLED = 0
 DBM_BEHAVIOR.SPELL_UNKNOWN_ID = 0
+DBM_BEHAVIOR.SPELL_UNKNOWN_KEY = "UNKOWN"
+DBM_BEHAVIOR.SPELL_UNKNOWN_NAME = "Unknown"
 
 --Possible difficulties
 DBM_BEHAVIOR.DIFFICULTY = {
@@ -107,6 +109,13 @@ DBM_BEHAVIOR.UPDATE_SUBTYPE = {
 	PLAY = 3
 }
 
+--Appends the given spell to the look table spell_id => spell_key
+local function AppendToSpellLookUp(boss_mod, spell_id, spell_key)
+	--When handling updates, we need to quickly solve the spell_id to a key
+	boss_mod.SPELL_LOOKUP = boss_mod.SPELL_LOOKUP or {}
+	boss_mod.SPELL_LOOKUP[spell_id] = spell_key
+end
+
 --Tie together the default arguments and behavior arguments
 local function MakeBehaviourArgs(event, behavior_table, default_parameters, arg_order)
 	local args = {}
@@ -127,7 +136,7 @@ local function MakeBehaviourArgs(event, behavior_table, default_parameters, arg_
 end
 
 --Tries to create a warning based on the given behavior table
-local function TryCreateDbmWarning(spell_behavior, spell_id, boss_mod)
+local function TryCreateDbmWarning(spell_behavior, spell_id, difficulty, boss_mod)
 	local engine = DBM_BEHAVIOR
 	local warning = spell_behavior.WARNING
 	--Check the datas existence
@@ -149,7 +158,7 @@ local function TryCreateDbmWarning(spell_behavior, spell_id, boss_mod)
 end
 
 --Tries to create a timer based on the given behavior table
-local function TryCreateDbmTimer(spell_behavior, spell_id, boss_mod)
+local function TryCreateDbmTimer(spell_behavior, spell_id, difficulty, boss_mod)
 	local engine = DBM_BEHAVIOR
 	local timer = spell_behavior.TIMER
 	--Check the datas existence
@@ -190,7 +199,7 @@ local function NormalizeArgumentation(event, ...)
 end
 
 --Append handler functions to the dbm mod
-local function AppendHandlers(spell_behavior, spell_id, boss_mod)
+local function AppendHandlers(spell_behavior, spell_id, difficulty, boss_mod)
 	local engine = DBM_BEHAVIOR
 	local utility = DBM_KFU
 	local handle_categories = engine.HANDLE_CATEGORIES
@@ -215,8 +224,11 @@ local function AppendHandlers(spell_behavior, spell_id, boss_mod)
 				--Special case manual cast monitor
 				if trigger_name == "MANUAL_CAST_MONITOR" and encounter_spells ~= nil then
 					--Store the spell
-					boss_mod.cast_monitor_spells = boss_mod.cast_monitor_spells or {}
-					boss_mod.cast_monitor_spells[utility.SolveSpellName(encounter_spells, spell_id)] = true
+					local spell_name = utility.SpellIdToName(encounter_spells, spell_id, difficulty)
+					if spell_name ~= nil then
+						boss_mod.cast_monitor_spells = boss_mod.cast_monitor_spells or {}
+						boss_mod.cast_monitor_spells[spell_name] = true
+					end
 				--BossTargetscan function
 				elseif trigger_name == "ON_SCAN" then
 					local spell_scan_func = "ON_SCAN" .. spell_id
@@ -232,6 +244,37 @@ local function AppendHandlers(spell_behavior, spell_id, boss_mod)
 	end
 end
 
+--Go trough the category and pull out event/spell id combos 
+local function AppendEventAndSpellsForCategory(
+	category, spell_key, boss_mod, internal_events, registration_needs, loop_difficulties
+)
+	local utility = DBM_KFU
+	--Go trough the categories events
+	for event, _ in pairs(category) do
+		--Has boss mod handle and is not internal event
+		if boss_mod[event] ~= nil and internal_events[event] == nil then
+			--Note the need to register the spell for the event
+			registration_needs[event] = registration_needs[event] or {}
+			--We need to pull all the spell ids into the registrar
+			for _, diff_index in ipairs(loop_difficulties) do
+				local spell_id = utility.SpellKeyToId(boss_mod.SPELLS, spell_key, diff_index)
+				if spell_id ~= nil then
+					registration_needs[event][spell_id] = true
+					AppendToSpellLookUp(boss_mod, spell_id, spell_key)
+				end
+			end
+		elseif event == "MANUAL_CAST_MONITOR" then
+			--We need to pull all the spell ids into the lookup
+			for _, diff_index in ipairs(loop_difficulties) do
+				local spell_id = utility.SpellKeyToId(boss_mod.SPELLS, spell_key, diff_index)
+				if spell_id ~= nil then
+					AppendToSpellLookUp(boss_mod, spell_id, spell_key)
+				end
+			end
+		end
+	end
+end
+
 -- Register events automatically based on the behavior definitions
 local function RegisterSpellEvents(boss_mod)
 	local registration_needs = {}
@@ -240,21 +283,27 @@ local function RegisterSpellEvents(boss_mod)
 	local internal_events = engine.INTERNAL_EVENTS
 	local handle_categories = engine.HANDLE_CATEGORIES
 	local behavior_model = boss_mod.BEHAVIOR
+	local loop_difficulties = {
+		"DEFAULT",
+		DBM_BEHAVIOR.DIFFICULTY.NORMAL_10,
+		DBM_BEHAVIOR.DIFFICULTY.NORMAL_25,
+		DBM_BEHAVIOR.DIFFICULTY.HEROIC_10,
+		DBM_BEHAVIOR.DIFFICULTY.HEROIC_25
+	}
 
-	--Run trough the behavior model and pick out events and spell ids tied to them
-	for spell_id, spell_behavior in pairs(behavior_model) do
-		--Go trough each category holding events
-		for _, category_name in ipairs(handle_categories) do
-			local category = spell_behavior[category_name]
-			if category ~= nil then
-				--Go trough the categories events
-				for event, _ in pairs(category) do
-					--Has boss mod handle and is not internal event
-					if boss_mod[event] ~= nil and internal_events[event] == nil then
-						--Note the need to register the spell for the event
-						registration_needs[event] = registration_needs[event] or {}
-						table.insert(registration_needs[event], spell_id)
-					end
+	--Run trough the behavior model and pick out events and spell ids tied to them, [spell_key] => {SPELL_BEHAVIOR}
+	for spell_key, spell_behavior in pairs(behavior_model) do
+		-- Loop trough the potential difficulty specific behaviors, [DIFFICULTY] => {DBM_DETAILS}
+		for difficulty, dbm_details in pairs(spell_behavior) do
+			local difficulty_behavior = spell_behavior[difficulty]
+			--Go trough each category holding events
+			for _, category_name in ipairs(handle_categories) do
+				local category = difficulty_behavior[category_name]
+				if category ~= nil then
+					AppendEventAndSpellsForCategory(
+						category, spell_key, boss_mod, internal_events, 
+						registration_needs, loop_difficulties
+					)
 				end
 			end
 		end
@@ -262,26 +311,88 @@ local function RegisterSpellEvents(boss_mod)
 	--Generate registration strings
 	local registration_strings = {}
 	for event, spell_ids  in pairs(registration_needs) do
-		table.insert(registration_strings, utility.EventString(event, unpack(spell_ids)))
+		local unique_spell_ids = {}
+		for spell_id, _ in pairs(registration_needs[event]) do
+			table.insert(unique_spell_ids, spell_id)
+		end
+		table.insert(registration_strings, utility.EventString(event, unpack(unique_spell_ids)))
 	end
 	--Register everything to DBM in one go
 	boss_mod:RegisterEventsInCombat(unpack(registration_strings))
+end
+
+--Creates the dbm objects for the given settings
+local function CreateBehavior(dbm_details, spell_id, difficulty, boss_mod)
+	if spell_id ~= nil then 
+		--Create warnings
+		TryCreateDbmWarning(dbm_details, spell_id, difficulty, boss_mod)
+		--Create timers
+		TryCreateDbmTimer(dbm_details, spell_id, difficulty, boss_mod)
+		--Append default behaviors
+		AppendHandlers(dbm_details, spell_id, difficulty, boss_mod)
+	end
+end
+
+--Create the behaviors for the difficulty levels
+local function CreateBehaviorForDifficulties(loop_difficulties, spell_behavior, boss_mod, spell_key)
+	local utility = DBM_KFU
+	local missing_behaviors = {}
+	-- Loop trough the potential difficulty specific behaviors, [DIFFICULTY] => {DBM_DETAILS}
+	for _, difficulty in ipairs(loop_difficulties) do
+		local dbm_details = spell_behavior[difficulty]
+		local spell_id = utility.SpellKeyToId(boss_mod.SPELLS, spell_key, difficulty)
+		--We have a valid difficult behavior override
+		if dbm_details ~= nil then
+			CreateBehavior(dbm_details, spell_id, difficulty, boss_mod)
+		else
+			missing_behaviors[difficulty] = true
+		end
+	end
+	return missing_behaviors
+end
+
+--Expand the DEFAULT behavior per missing difficulty level
+local function ExpandDefaultBehavior(missing_behaviors, spell_behavior, boss_mod, spell_key)
+	local default_behavior = "DEFAULT"
+	if spell_behavior[default_behavior] ~= nil then
+		local utility = DBM_KFU
+		--Loop trough the missing difficulties
+		for missing_diff, _ in pairs(missing_behaviors) do
+			--We need to append new table for the default/diff combo
+			local diff_default_key = missing_diff
+			spell_behavior[diff_default_key] = utility.CopyTable(spell_behavior[default_behavior])
+			--Solve the spell id for this difficulty
+			local spell_id = utility.SpellKeyToId(boss_mod.SPELLS, spell_key, missing_diff)
+			--Create the DBM objects
+			CreateBehavior(spell_behavior[diff_default_key], spell_id, missing_diff, boss_mod)
+		end
+	end
 end
 
 --Create the boss model from the given behavior table
 function DBM_BEHAVIOR.CreateBossModel(boss_mod)
 	--Check if we can find data to create the model
 	if boss_mod ~= nil then
+		local utility = DBM_KFU
+		local engine = DBM_BEHAVIOR
 		local behavior_model = boss_mod.BEHAVIOR
+		local loop_difficulties = {
+			DBM_BEHAVIOR.DIFFICULTY.NORMAL_10,
+			DBM_BEHAVIOR.DIFFICULTY.NORMAL_25,
+			DBM_BEHAVIOR.DIFFICULTY.HEROIC_10,
+			DBM_BEHAVIOR.DIFFICULTY.HEROIC_25
+		}
 		if behavior_model ~= nil then
-			-- Loop trough per spell trough the behaviors table
-			for spell_id, spell_behavior in pairs(behavior_model) do
-				--Create warnings
-				TryCreateDbmWarning(spell_behavior, spell_id, boss_mod)
-				--Create timers
-				TryCreateDbmTimer(spell_behavior, spell_id, boss_mod)
-				--Append default behaviors
-				AppendHandlers(spell_behavior, spell_id, boss_mod)
+			-- Loop trough per spell trough the behaviors table, [spell_key] => {SPELL_BEHAVIOR}
+			for spell_key, spell_behavior in pairs(behavior_model) do
+				--We need to create behavior for every difficulty that exists.
+				--There is no load barrier when switching difficulties.
+				--Create the "override" behaviors per difficulty
+				local missing_behaviors = CreateBehaviorForDifficulties(
+					loop_difficulties, spell_behavior, boss_mod, spell_key
+				)
+				--Expand the DEFAULT behavior per difficulty that does not have specific behavior override
+				ExpandDefaultBehavior(missing_behaviors, spell_behavior, boss_mod, spell_key)
 			end
 			--Register combat events
 			RegisterSpellEvents(boss_mod)
@@ -290,12 +401,12 @@ function DBM_BEHAVIOR.CreateBossModel(boss_mod)
 end
 
 --Handle any triggering of timers
-local function HandleTimerUpdate(spell_id, behavior, event, boss_mod, args)
+local function HandleTimerUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
 	local timer_data = behavior.TIMER
 	local utility = DBM_KFU
 	local start_events = behavior.TIMER_STARTS
 	--Do we have a timer data?
-	if timer_data ~= nil and start_events~= nil then
+	if timer_data ~= nil and start_events ~= nil then
 		local timer = timer_data.DBM
 		local trigger_data = start_events[event]
 		--Do we have timer and data for this event?
@@ -312,7 +423,7 @@ local function HandleTimerUpdate(spell_id, behavior, event, boss_mod, args)
 				--Try starting the timer
 				utility.TryStartTimer(
 					timer,
-					utility.GetTiming(boss_mod.TIMINGS, boss_mod.difficulty, boss_mod.phase, spell_id, event),
+					utility.GetTiming(boss_mod.TIMINGS, boss_mod.difficulty, boss_mod.phase, spell_mapping, event),
 					injection
 				)
 			end
@@ -321,7 +432,7 @@ local function HandleTimerUpdate(spell_id, behavior, event, boss_mod, args)
 end
 
 --Handle any triggering of warnings
-local function HandleWarningUpdate(spell_id, behavior, event, boss_mod, args)
+local function HandleWarningUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
 	local warning_data = behavior.WARNING
 	local show_events = behavior.WARNING_SHOW
 	--Do we have warning data?
@@ -347,7 +458,7 @@ local function HandleWarningUpdate(spell_id, behavior, event, boss_mod, args)
 end
 
 --Handle any triggering of sounds
-local function HandlePlayUpdate(spell_id, behavior, event, boss_mod, args)
+local function HandlePlayUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
 	local warning_data = behavior.WARNING
 	local play_events = behavior.PLAY_SOUND
 	--Do we have ability to play sound and event data
@@ -375,7 +486,7 @@ local function HandlePlayUpdate(spell_id, behavior, event, boss_mod, args)
 end
 
 --Handle any triggering of sounds
-local function HandleScanTrigger(spell_id, behavior, event, boss_mod, args)
+local function HandleScanTrigger(spell_id, spell_mapping, behavior, event, boss_mod, args)
 	local scan_event_id = "ON_SCAN"
 	local scan_triggers = behavior.SCAN_TRIGGER
 	local source_guid = args.sourceGUID
@@ -398,22 +509,39 @@ local function HandleScanTrigger(spell_id, behavior, event, boss_mod, args)
 	end
 end
 
+--Based on Difficulty and spellid, solves the behavior model we should execute
+local function GetSpellBehavior(boss_mod, spell_mapping)
+	--Has the spell been mapped to a name?
+	if spell_mapping ~= nil then
+		local behaviors = boss_mod.BEHAVIOR[spell_mapping]
+		--Does the spell have a behaviors defined?
+		if behaviors ~= nil then
+			--Prefer the difficulty specific behavior over the default one
+			return behaviors[boss_mod.difficulty] or behaviors["DEFAULT"]
+		end
+	end
+	return nil
+end
+
 --Handle boss model update
-function DBM_BEHAVIOR.HandleModelUpdate(spell_id, event, boss_mod, args)
+function DBM_BEHAVIOR.HandleModelUpdate(spell_id, event, boss_mod, args, spell_key)
+	spell_id = spell_id or DBM_KFU.SpellKeyToId(boss_mod.SPELLS, spell_key, boss_mod.difficulty)
+	local spell_mapping = spell_key or boss_mod.SPELL_LOOKUP[spell_id]
+	local behavior = GetSpellBehavior(boss_mod, spell_mapping)
 	--Do we have a behavior defined for this spell?
-	local behavior = boss_mod.BEHAVIOR[spell_id]
 	if behavior ~= nil then
-		HandleTimerUpdate(spell_id, behavior, event, boss_mod, args)
-		HandleWarningUpdate(spell_id, behavior, event, boss_mod, args)
-		HandlePlayUpdate(spell_id, behavior, event, boss_mod, args)
-		HandleScanTrigger(spell_id, behavior, event, boss_mod, args)
+		HandleTimerUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
+		HandleWarningUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
+		HandlePlayUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
+		HandleScanTrigger(spell_id, spell_mapping, behavior, event, boss_mod, args)
 	end
 end
 
 --Handle model event
 function DBM_BEHAVIOR.HandleModelEvent(event, boss_mod, args)
-	for spell_id, _ in pairs(boss_mod.BEHAVIOR) do
-		DBM_BEHAVIOR.HandleModelUpdate(spell_id, event, boss_mod, args)
+	for spell_key, _ in pairs(boss_mod.BEHAVIOR) do
+		
+		DBM_BEHAVIOR.HandleModelUpdate(nil, event, boss_mod, args, spell_key)
 	end
 end
 
@@ -469,7 +597,7 @@ function DBM_BEHAVIOR.StartPhaseMonitor(boss_mod)
 		local engine = DBM_BEHAVIOR
 		--If boss boss unit does not exists, the UNIT_HEALTH events wont fire
 		if not UnitExists(boss_mod.boss_unit_id) then
-			print("Monitoring boss health manually")
+			DBM_KFU.Debug("Monitoring boss health manually")
 			--Work around the issue by doing manual health monitoring
 			boss_mod.boss_health_monitor = utility.MonitorBossHealth(
 				boss_mod.creatureId, function(health) engine.ShouldTransitionPhase(boss_mod, health) end
@@ -533,7 +661,7 @@ function DBM_BEHAVIOR.StartSpellCastingMonitor(boss_mod)
 		boss_mod.boss_casting_monitor = utility.MonitorBossCasting(
 			boss_mod.creatureId, boss_mod.cast_monitor_spells,
 			function(spell_name) 
-				local spell_id = utility.SolveSpellId(boss_mod.SPELLS, spell_name)
+				local spell_id = utility.SpellNameToId(boss_mod.SPELLS, spell_name, boss_mod.difficulty)
 				if spell_id ~= nil then
 					engine.HandleModelUpdate(spell_id, "MANUAL_CAST_MONITOR", boss_mod, {})
 				end
