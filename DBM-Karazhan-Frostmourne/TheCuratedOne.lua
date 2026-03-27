@@ -39,7 +39,7 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 --Timing tables
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
-	[mod.SPELLS.CHAOS_BOLT.KEY] = {DEFAULT = 8.45},
+	[mod.SPELLS.CHAOS_BOLT.KEY] = {DEFAULT = 4},
 	[mod.SPELLS.FEAR.KEY] = {DEFAULT = 25},
 	[mod.SPELLS.BLOOD_MIRROR.KEY] = {DEFAULT = 25},
 	[mod.SPELLS.DEATH_AND_DECAY.KEY] = {DEFAULT = 20},
@@ -71,7 +71,6 @@ mod.BEHAVIOR = {
 			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 			SCAN_TRIGGER = {SPELL_CAST_START = {frequency = 0.05, scan_attempts = 10}},
 			WARNING_SHOW = {ON_SCAN = {}},
-			PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
 		}
 	},
 	[mod.SPELLS.BLOOD_MIRROR.KEY] = {

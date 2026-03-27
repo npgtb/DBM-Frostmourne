@@ -39,7 +39,7 @@ DBM_BEHAVIOR.WARNING_TYPE = {
 	NewSpecialWarningMove = "NewSpecialWarningMove",
 	NewSpecialWarning = "NewSpecialWarning",
 	NewSpellAnnounce = "NewSpellAnnounce",
-	NewSpecialWarningDefensive = "NewSpecialWarningDefensive"
+	NewSpecialWarningDefensive = "NewSpecialWarningDefensive",
 }
 
 --Define some warning default parameters for the behavior system

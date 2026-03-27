@@ -69,13 +69,20 @@ mod.BEHAVIOR = {
 			PLAY_SOUND = {SPELL_CAST_START = {sound = "aesoon"}}
 		}
 	},
+	[mod.SPELLS.FLAME_WREATH.KEY] = {
+		DEFAULT = {
+			WARNING = {type = "NewSpecialWarning", text = "Stop Moving!"},
+			WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
+			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "stopmove", condition = DBM_BEHAVIOR.OnSelf}}
+		}
+	},
 	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
 		DEFAULT = {
 			WARNING = {type = "NewSpecialWarningMove"},
 			TIMER = {type = "NewCDTimer"},
 			TIMER_STARTS = {SPELL_CAST_START = {}},
 			WARNING_SHOW = {SPELL_CAST_START = {}},
-			PLAY_SOUND = {SPELL_CAST_START = {sound = "runaway"}}
+			PLAY_SOUND = {SPELL_CAST_START = {sound = "runtoedge"}}
 		}
 	},
 	[mod.SPELLS.CHAINS_OF_ICE.KEY] = {
