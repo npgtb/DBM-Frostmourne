@@ -45,9 +45,8 @@ mod.SPELLS = {
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250052
 		}
 	},
-    IMPENDING_DESPAIR = {KEY = "IMPENDING_DESPAIR", NAME = "Impending Despair", ID = {DEFAULT = 72426}},
-    DESPAIR_STRICKEN = {KEY = "DESPAIR_STRICKEN", NAME = "Despair Stricken", ID = {DEFAULT = 72428}},
     AURA_OF_SUFFERING = {KEY = "AURA_OF_SUFFERING", NAME = "Aura of Suffering", ID = {DEFAULT = 41292}},
+    FINGER_OF_DEATH = {KEY = "FINGER_OF_DEATH", NAME = "Finger of Death", ID = {DEFAULT = 31984}},
 	SPELL_DISRUPTION = {KEY = "SPELL_DISRUPTION", NAME = "Spell Disruption", ID = {DEFAULT = 29310}}
 }
 
@@ -67,8 +66,6 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
 	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {DEFAULT = 15},
-	--[mod.SPELLS.IMPENDING_DESPAIR.KEY] = {DEFAULT = 15},
-	--[mod.SPELLS.SPELL_DISRUPTION.KEY] = {DEFAULT = 30}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -106,24 +103,13 @@ mod.BEHAVIOR = {
 			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "helpdispel", condition = DBM_BEHAVIOR.CanDecurse}}
 		}
 	},
-	--[[[mod.SPELLS.IMPENDING_DESPAIR.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
-			TIMER = {type = "NewCDTimer"},
-			TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
-			WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
-			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow"}}
-		}
-	},
-	[mod.SPELLS.SPELL_DISRUPTION.KEY] = {
+	[mod.SPELLS.FINGER_OF_DEATH.KEY] = {
 		DEFAULT = {
 			WARNING = {type = "NewSpecialWarningYou"},
-			TIMER = {type = "NewCDTimer"},
-			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
-			WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
-			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
+			WARNING_SHOW = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf}},
+			PLAY_SOUND = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
 		}
-	},--]]
+	},
 	[mod.SPELLS.CHILL.KEY] = {
 		DEFAULT = {
 			WARNING = {type = "NewSpecialWarningGTFO"},
