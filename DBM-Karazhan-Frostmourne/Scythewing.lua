@@ -131,14 +131,12 @@ function mod:OnCombatStart(delay)
 	--Fetch difficulty from dbm
 	DBM_BEHAVIOR.CombatStartFetchData(mod)
 	DBM_BEHAVIOR.StartPhaseMonitor(mod, boss_unit_id)
-	DBM_BEHAVIOR.StartSpellCastingMonitor(mod)
 	DBM_BEHAVIOR.HandleModelEvent("ON_COMBAT_START", mod, {offset=-delay})
 end
 
 function mod:OnCombatEnd(wipe)
     --Stop the monitors
 	DBM_BEHAVIOR.StopPhaseMonitor(mod)
-	DBM_BEHAVIOR.StopSpellCastingMonitor(mod)
 end
 
 --Initialize the model

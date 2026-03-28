@@ -47,7 +47,9 @@ mod.SPELLS = {
 	},
     AURA_OF_SUFFERING = {KEY = "AURA_OF_SUFFERING", NAME = "Aura of Suffering", ID = {DEFAULT = 41292}},
     FINGER_OF_DEATH = {KEY = "FINGER_OF_DEATH", NAME = "Finger of Death", ID = {DEFAULT = 31984}},
-	SPELL_DISRUPTION = {KEY = "SPELL_DISRUPTION", NAME = "Spell Disruption", ID = {DEFAULT = 29310}}
+	SPELL_DISRUPTION = {KEY = "SPELL_DISRUPTION", NAME = "Spell Disruption", ID = {DEFAULT = 29310}},
+	PERMAFROST = {KEY = "PERMAFROST", NAME = "Permafrost", ID = {DEFAULT = 67856}},
+	SHROUD_OF_DARKNESS = {KEY = "SHROUD_OF_DARKNESS", NAME = "Shroud of Darkness", ID = {DEFAULT = 54525}}
 }
 
 --We transition based on his health %
@@ -66,6 +68,8 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
 	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {DEFAULT = 15},
+	[mod.SPELLS.PERMAFROST.KEY] = {DEFAULT = 30, ON_COMBAT_START = 20},
+	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {DEFAULT = 12}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -106,8 +110,23 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FINGER_OF_DEATH.KEY] = {
 		DEFAULT = {
 			WARNING = {type = "NewSpecialWarningYou"},
-			WARNING_SHOW = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf}},
-			PLAY_SOUND = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
+			WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
+			PLAY_SOUND = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
+		}
+	},
+	[mod.SPELLS.PERMAFROST.KEY] = {
+		DEFAULT = {
+			TIMER = {type = "NewCDTimer"},
+			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
+			WARNING = {type = "NewSpecialWarningGTFO"},
+			WARNING_SHOW = {
+				SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
+				SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
+			},
+			PLAY_SOUND = {
+				SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}, 
+				SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}
+			}
 		}
 	},
 	[mod.SPELLS.CHILL.KEY] = {
@@ -123,6 +142,29 @@ mod.BEHAVIOR = {
 			}
 		}
 	},
+	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {
+		DEFAULT = {
+			TIMER = {type = "NewCDTimer"},
+			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
+			WARNING = {type = "NewSpecialWarningStack", threshold = 2},
+			WARNING_SHOW = {
+				SPELL_AURA_APPLIED_DOSE = {
+					condition = function(boss_mod, args, spell_id, update_subtype) 
+						return args.amount > 2 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+					end,
+					inject = "amount"
+				}
+			},
+			PLAY_SOUND = {
+				SPELL_AURA_APPLIED_DOSE = {
+					condition = function(boss_mod, args, spell_id, update_subtype) 
+						return args.amount > 2 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+					end,
+					sound = "stackhigh"
+				}
+			},
+		}
+	},
 }
 
 local boss_unit_id = "boss1"
@@ -131,14 +173,12 @@ function mod:OnCombatStart(delay)
 	--Fetch difficulty from dbm
 	DBM_BEHAVIOR.CombatStartFetchData(mod)
 	DBM_BEHAVIOR.StartPhaseMonitor(mod, boss_unit_id)
-	DBM_BEHAVIOR.StartSpellCastingMonitor(mod)
 	DBM_BEHAVIOR.HandleModelEvent("ON_COMBAT_START", mod, {offset=-delay})
 end
 
 function mod:OnCombatEnd(wipe)
     --Stop the monitors
 	DBM_BEHAVIOR.StopPhaseMonitor(mod)
-	DBM_BEHAVIOR.StopSpellCastingMonitor(mod)
 end
 
 --Initialize the model
