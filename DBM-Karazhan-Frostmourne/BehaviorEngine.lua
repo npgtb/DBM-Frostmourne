@@ -353,7 +353,6 @@ local function CreateBehaviorForDifficulties(spell_behavior, boss_mod, spell_key
 	local missing_behaviors = {}
 	-- Loop trough the potential difficulty specific behaviors, [DIFFICULTY] => {DBM_DETAILS}
 	for _, difficulty in pairs(engine.DIFFICULTY) do
-		print(difficulty)
 		local dbm_details = spell_behavior[difficulty]
 		local spell_id = utility.SpellKeyToId(boss_mod.SPELLS, spell_key, difficulty)
 		--We have a valid difficult behavior override
