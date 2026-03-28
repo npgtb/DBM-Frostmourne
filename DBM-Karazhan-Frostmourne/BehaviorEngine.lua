@@ -40,10 +40,11 @@ DBM_BEHAVIOR.WARNING_TYPE = {
 	NewSpecialWarning = "NewSpecialWarning",
 	NewSpellAnnounce = "NewSpellAnnounce",
 	NewSpecialWarningDefensive = "NewSpecialWarningDefensive",
+	NewCastAnnounce = "NewCastAnnounce"
 }
 
 --Define some warning default parameters for the behavior system
-DBM_BEHAVIOR.WARNING_CREATION_ARG_ORDER = {"text", "spell_id", "filter", "a", "threshold", "b", "c", "sound", "icon"}
+DBM_BEHAVIOR.WARNING_CREATION_ARG_ORDER = {"text", "spell_id", "color", "filter", "a", "threshold", "b", "c", "sound", "icon"}
 DBM_BEHAVIOR.WARNING_DEFAULT_PARAMS = {
     NewSpecialWarningDispel = { spell_id = "", filter = "RemoveDisease", a = false, b = false, sound = 1, icon = 2 },
     NewSpecialWarningGTFO = { spell_id = "", a = false, b = false, c = false, sound = 1, icon = 8 },
@@ -54,6 +55,7 @@ DBM_BEHAVIOR.WARNING_DEFAULT_PARAMS = {
     NewSpecialWarningMove = { spell_id = "", a = false, b = false, c = false, sound = 1, icon = 2 },
 	NewSpecialWarning = { text = "", a = false, b = false, c = false, sound = 1, icon = 2 },
     NewSpellAnnounce = { spell_id = "", a = 3, b = false, filter = "" },
+	NewCastAnnounce = { spell_id = "", color = 3},
 	NewSpecialWarningDefensive = {spell_id = "", a = false, b = false, c = false, icon = 1, sound = 2}
 }
 

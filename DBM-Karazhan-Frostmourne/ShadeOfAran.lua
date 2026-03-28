@@ -62,7 +62,7 @@ mod.BEHAVIOR = {
 	},
 	[mod.SPELLS.FLAME_WREATH_CAST.KEY] = {
 		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningMove"},
+			WARNING = {type = "NewCastAnnounce"},
 			TIMER = {type = "NewCDTimer"},
 			TIMER_STARTS = {SPELL_CAST_START = {}},
 			WARNING_SHOW = {SPELL_CAST_START = {}},
