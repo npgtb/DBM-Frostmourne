@@ -109,13 +109,6 @@ DBM_BEHAVIOR.UPDATE_SUBTYPE = {
 	PLAY = 3
 }
 
---Appends the given spell to the look table spell_id => spell_key
-local function AppendToSpellLookUp(boss_mod, spell_id, spell_key)
-	--When handling updates, we need to quickly solve the spell_id to a key
-	boss_mod.SPELL_LOOKUP = boss_mod.SPELL_LOOKUP or {}
-	boss_mod.SPELL_LOOKUP[spell_id] = spell_key
-end
-
 --Tie together the default arguments and behavior arguments
 local function MakeBehaviourArgs(event, behavior_table, default_parameters, arg_order)
 	local args = {}
@@ -198,6 +191,42 @@ local function NormalizeArgumentation(event, ...)
 	return reuse_table
 end
 
+--Appends handlers to the boss mod for possible internal events
+local function AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, spell_id, difficulty, engine, utility)
+	--Special case manual cast monitor
+	if trigger_name == "MANUAL_CAST_MONITOR" and encounter_spells ~= nil then
+		--Store the spell
+		local spell_name = utility.SpellIdToName(encounter_spells, spell_id, difficulty)
+		if spell_name ~= nil then
+			boss_mod.cast_monitor_spells = boss_mod.cast_monitor_spells or {}
+			boss_mod.cast_monitor_spells[spell_name] = true
+		end
+	--BossTargetscan function
+	elseif trigger_name == "ON_SCAN" then
+		local spell_scan_func = "ON_SCAN" .. spell_id
+		--Attach the scan function to the boss_mod as requried by dbm
+		boss_mod[spell_scan_func] = function(self, target_name)
+			if target_name == self.player_name then
+				engine.HandleModelUpdate(spell_id, "ON_SCAN", self, {destName = target_name})
+			end
+		end
+	end
+end
+
+--Appends handlers for the Combatlog events coming from DBM
+local function AppendExternalHandlers(boss_mod, trigger_name, internal_events, engine)
+	local internal_event_lookup = internal_events[trigger_name]
+	--If internal event not blocked and boss mod doesnt have existing handle
+	if boss_mod[trigger_name] == nil and internal_event_lookup ~= false then
+		--Attach handlers to boss mod, capture trigger name as the events name
+		local event_name = trigger_name
+		boss_mod[event_name] = function(self, ...)
+			local args = NormalizeArgumentation(event_name, ...)
+			engine.HandleModelUpdate(args.spellId, event_name, self, args)
+		end
+	end
+end
+
 --Append handler functions to the dbm mod
 local function AppendHandlers(spell_behavior, spell_id, difficulty, boss_mod)
 	local engine = DBM_BEHAVIOR
@@ -211,46 +240,28 @@ local function AppendHandlers(spell_behavior, spell_id, difficulty, boss_mod)
 		if category ~= nil then
 			--If we have the handle category in data, go trough it
 			for trigger_name, trigger_data in pairs(category) do
-				local internal_event_lookup = internal_events[trigger_name]
-				--If internal event not blocked and boss mod doesnt have existing handle
-				if boss_mod[trigger_name] == nil and internal_event_lookup ~= false then
-					--Attach handlers to boss mod, capture trigger name as the events name
-					local event_name = trigger_name
-					boss_mod[event_name] = function(self, ...)
-						local args = NormalizeArgumentation(event_name, ...)
-						engine.HandleModelUpdate(args.spellId, event_name, self, args)
-					end
-				end
-				--Special case manual cast monitor
-				if trigger_name == "MANUAL_CAST_MONITOR" and encounter_spells ~= nil then
-					--Store the spell
-					local spell_name = utility.SpellIdToName(encounter_spells, spell_id, difficulty)
-					if spell_name ~= nil then
-						boss_mod.cast_monitor_spells = boss_mod.cast_monitor_spells or {}
-						boss_mod.cast_monitor_spells[spell_name] = true
-					end
-				--BossTargetscan function
-				elseif trigger_name == "ON_SCAN" then
-					local spell_scan_func = "ON_SCAN" .. spell_id
-					--Attach the scan function to the boss_mod as requried by dbm
-					boss_mod[spell_scan_func] = function(self, target_name)
-						if target_name == self.player_name then
-							engine.HandleModelUpdate(spell_id, "ON_SCAN", self, {destName = target_name})
-						end
-					end
-				end
+				--Deal with combatlog events coming from dbm
+				AppendExternalHandlers(boss_mod, trigger_name, internal_events, engine)
+				--Deal with ON_SCAN and MANUAL_CAST_MONITOR
+				AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, spell_id, difficulty, engine, utility)
 			end
 		end
 	end
 end
 
+--Appends the given spell to the look table spell_id => spell_key
+local function AppendToSpellLookUp(boss_mod, spell_id, spell_key)
+	--When handling updates, we need to quickly solve the spell_id to a key
+	boss_mod.SPELL_LOOKUP = boss_mod.SPELL_LOOKUP or {}
+	boss_mod.SPELL_LOOKUP[spell_id] = spell_key
+end
+
 --Go trough the category and pull out event/spell id combos 
-local function AppendEventAndSpellsForCategory(
-	category, spell_key, boss_mod, internal_events, registration_needs, loop_difficulties
+local function SolveRegistrationNeeds(
+	category, spell_key, boss_mod, internal_events, registration_needs, loop_difficulties, utility
 )
-	local utility = DBM_KFU
 	--Go trough the categories events
-	for event, _ in pairs(category) do
+	for event, _ in pairs(category) do 
 		--Has boss mod handle and is not internal event
 		if boss_mod[event] ~= nil and internal_events[event] == nil then
 			--Note the need to register the spell for the event
@@ -263,6 +274,7 @@ local function AppendEventAndSpellsForCategory(
 					AppendToSpellLookUp(boss_mod, spell_id, spell_key)
 				end
 			end
+		--Is the internal even cast monitor?
 		elseif event == "MANUAL_CAST_MONITOR" then
 			--We need to pull all the spell ids into the lookup
 			for _, diff_index in ipairs(loop_difficulties) do
@@ -300,9 +312,10 @@ local function RegisterSpellEvents(boss_mod)
 			for _, category_name in ipairs(handle_categories) do
 				local category = difficulty_behavior[category_name]
 				if category ~= nil then
-					AppendEventAndSpellsForCategory(
+					--Pull out the Spellids/events. Register spells to key lookup
+					SolveRegistrationNeeds(
 						category, spell_key, boss_mod, internal_events, 
-						registration_needs, loop_difficulties
+						registration_needs, loop_difficulties, utility
 					)
 				end
 			end
@@ -334,11 +347,12 @@ local function CreateBehavior(dbm_details, spell_id, difficulty, boss_mod)
 end
 
 --Create the behaviors for the difficulty levels
-local function CreateBehaviorForDifficulties(loop_difficulties, spell_behavior, boss_mod, spell_key)
+local function CreateBehaviorForDifficulties(spell_behavior, boss_mod, spell_key)
 	local utility = DBM_KFU
+	local engine = DBM_BEHAVIOR
 	local missing_behaviors = {}
 	-- Loop trough the potential difficulty specific behaviors, [DIFFICULTY] => {DBM_DETAILS}
-	for _, difficulty in ipairs(loop_difficulties) do
+	for _, difficulty in ipairs(engine.DIFFICULTY) do
 		local dbm_details = spell_behavior[difficulty]
 		local spell_id = utility.SpellKeyToId(boss_mod.SPELLS, spell_key, difficulty)
 		--We have a valid difficult behavior override
@@ -376,12 +390,6 @@ function DBM_BEHAVIOR.CreateBossModel(boss_mod)
 		local utility = DBM_KFU
 		local engine = DBM_BEHAVIOR
 		local behavior_model = boss_mod.BEHAVIOR
-		local loop_difficulties = {
-			DBM_BEHAVIOR.DIFFICULTY.NORMAL_10,
-			DBM_BEHAVIOR.DIFFICULTY.NORMAL_25,
-			DBM_BEHAVIOR.DIFFICULTY.HEROIC_10,
-			DBM_BEHAVIOR.DIFFICULTY.HEROIC_25
-		}
 		if behavior_model ~= nil then
 			-- Loop trough per spell trough the behaviors table, [spell_key] => {SPELL_BEHAVIOR}
 			for spell_key, spell_behavior in pairs(behavior_model) do
@@ -389,7 +397,7 @@ function DBM_BEHAVIOR.CreateBossModel(boss_mod)
 				--There is no load barrier when switching difficulties.
 				--Create the "override" behaviors per difficulty
 				local missing_behaviors = CreateBehaviorForDifficulties(
-					loop_difficulties, spell_behavior, boss_mod, spell_key
+					spell_behavior, boss_mod, spell_key
 				)
 				--Expand the DEFAULT behavior per difficulty that does not have specific behavior override
 				ExpandDefaultBehavior(missing_behaviors, spell_behavior, boss_mod, spell_key)
