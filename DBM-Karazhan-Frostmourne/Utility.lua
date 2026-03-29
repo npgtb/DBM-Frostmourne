@@ -80,24 +80,21 @@ function DBM_KFU.EventString(event_name, ...)
 end
 
 --Helper function for retrieving timers
-function DBM_KFU.GetTiming(timing_table, difficulty, phase, ability, event)
+function DBM_KFU.GetTiming(timing_table, difficulty, phase, ability, event, context)
 	local difficulty_table = timing_table[difficulty]
 	--Do we have difficulty level info?
 	if difficulty_table ~= nil then
-		local phase_default_table = difficulty_table.PHASE_DEFAULT
-		local phase_table = difficulty_table[phase]
+		local phase_table = difficulty_table[phase] or difficulty_table.PHASE_DEFAULT
 		--What about phase level?
 		if phase_table ~= nil then
 			local ability_table = phase_table[ability]
 			--Does the ability have timings here?
 			if ability_table ~= nil then
-				--Prefer event specific timings over default
-				return ability_table[event] or ability_table.DEFAULT
-			end
-		--Fallback to the default timing table
-		elseif phase_default_table ~= nil then
-			local ability_table = phase_default_table[ability]
-			if ability_table ~= nil then
+				local context_table = ability_table[context]
+				--Is there context level settings?
+				if context_table ~= nil then
+					return context_table[event] or context_table.DEFAULT
+				end
 				--Prefer event specific timings over default
 				return ability_table[event] or ability_table.DEFAULT
 			end

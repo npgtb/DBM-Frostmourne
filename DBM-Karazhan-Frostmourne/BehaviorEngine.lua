@@ -62,13 +62,15 @@ DBM_BEHAVIOR.WARNING_DEFAULT_PARAMS = {
 --Define timer types for the behavior system
 DBM_BEHAVIOR.TIMER_TYPE = {
 	NewCDTimer = "NewCDTimer",
-	NewBerserkTimer = "NewBerserkTimer"
+	NewBerserkTimer = "NewBerserkTimer",
+	NewCastTimer = "NewCastTimer"
 }
 --Define some warning default parameters for the behavior system
-DBM_BEHAVIOR.TIMER_CREATION_ARG_ORDER = {"default_timing", "spell_id", "a", "b", "c", "icon"}
+DBM_BEHAVIOR.TIMER_CREATION_ARG_ORDER = {"default_timing", "spell_id", "a", "b", "c", "color", "d", "icon"}
 DBM_BEHAVIOR.TIMER_DEFAULT_PARAMS = {
     NewCDTimer = {default_timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", a = false, b = false, c = false, icon = 2},
-	NewBerserkTimer = {default_timing = DBM_BEHAVIOR.TIMER_DISABLED}
+	NewBerserkTimer = {default_timing = DBM_BEHAVIOR.TIMER_DISABLED},
+	NewCastTimer = {default_timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", a = false, b = false, c = false, color = 3, d = false, icon = false}
 }
 
 DBM_BEHAVIOR.HANDLE_CATEGORIES = {"TIMER_STARTS", "SCAN_TRIGGER", "WARNING_SHOW", "PLAY_SOUND"}
@@ -419,7 +421,7 @@ function DBM_BEHAVIOR.CreateBossModel(boss_mod)
 end
 
 --Handle any triggering of timers
-local function HandleTimerUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
+local function HandleTimerUpdate(spell_id, spell_mapping, behavior, event, boss_mod, context, args)
 	local timer_data = behavior.TIMER
 	local utility = DBM_KFU
 	local start_events = behavior.TIMER_STARTS
@@ -445,7 +447,7 @@ local function HandleTimerUpdate(spell_id, spell_mapping, behavior, event, boss_
 			--Try starting the timer
 			utility.TryStartTimer(
 				timer,
-				utility.GetTiming(boss_mod.TIMINGS, boss_mod.difficulty, boss_mod.phase, spell_mapping, event),
+				utility.GetTiming(boss_mod.TIMINGS, boss_mod.difficulty, boss_mod.phase, spell_mapping, event, context),
 				injection
 			)
 		end
@@ -558,7 +560,7 @@ function DBM_BEHAVIOR.HandleModelUpdate(spell_id, event, boss_mod, args, spell_k
 		local context_behavior = spell_context[boss_mod.difficulty] or spell_context["DEFAULT"]
 		--Do we have a behavior defined for this spell?
 		if context_behavior ~= nil then
-			HandleTimerUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, args)
+			HandleTimerUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, context_name, args)
 			HandleWarningUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, args)
 			HandlePlayUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, args)
 			HandleScanTrigger(spell_id, spell_mapping, context_behavior, event, boss_mod, args)

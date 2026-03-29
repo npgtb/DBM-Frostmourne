@@ -40,8 +40,18 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 --Timing tables
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
-	[mod.SPELLS.FLAME_WREATH_CAST.KEY] = {DEFAULT = 63},
-	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {DEFAULT = 67},
+	[mod.SPELLS.FLAME_WREATH_CAST.KEY] = {
+		DEFAULT = 63,
+		CAST_TIMER = {
+			DEFAULT = 5
+		}
+	},
+	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
+		DEFAULT = 67,
+		CAST_TIMER = {
+			DEFAULT = 5
+		}
+	},
 	[mod.SPELLS.SUMMON_BLIZZARD.KEY] = {DEFAULT = 63},
 	[mod.SPELLS.CHAINS_OF_ICE.KEY] = {DEFAULT = 60},
 	[mod.SPELLS.COUNTERSPELL.KEY] = {DEFAULT = 6}
@@ -71,6 +81,12 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {SPELL_CAST_START = {}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "aesoon"}}
 			}
+		},
+		CAST_TIMER = {
+			DEFAULT = {
+				TIMER = {type = "NewCastTimer", default_timing = 5, icon = DBM_COMMON_L.DEADLY_ICON},
+				TIMER_STARTS = {SPELL_CAST_START = {}}
+			}
 		}
 	},
 	[mod.SPELLS.FLAME_WREATH.KEY] = {
@@ -90,6 +106,12 @@ mod.BEHAVIOR = {
 				TIMER_STARTS = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "runtoedge"}}
+			}
+		},
+		CAST_TIMER = {
+			DEFAULT = {
+				TIMER = {type = "NewCastTimer", default_timing = 5, icon = DBM_COMMON_L.DEADLY_ICON},
+				TIMER_STARTS = {SPELL_CAST_START = {}}
 			}
 		}
 	},
@@ -140,8 +162,8 @@ mod.BEHAVIOR = {
 					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
 				},
 				PLAY_SOUND = {
-					SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "runaway"},
-					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "runaway"}
+					SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"},
+					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}
 				}
 			}
 		}
@@ -155,62 +177,40 @@ mod.BEHAVIOR = {
 		}
 	},
 	[mod.SPELLS.FROSTBOLT.KEY] = {
-		KICK_WARN = {
+		CAST_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningInterruptCount", filter = "HasInterrupt"},
-				WARNING_SHOW = {
-					SPELL_CAST_START = {
-						override = function (boss_mod, trigger_data, warning, args)
-							--Warn the current kick group to kick the caster
-							if boss_mod.player_can_kick then
-								warning:Show(args.sourceName, boss_mod.SolveKickGroup())
-							end
-						end
-					}
-				},
-				PLAY_SOUND = {
-					SPELL_CAST_START = {
-						sound = "kick",
-						override = function (boss_mod, trigger_data, warning, args)
-							--Execute order Warning => Play. We only play sound here
-							if boss_mod.player_can_kick then
-								local base_sound = trigger_data.sound or "kick"
-								local kick_audio_string = base_sound .. boss_mod.vb.current_kick_group .. "r"
-								warning:Play(kick_audio_string)
-							end
-						end
-					}
-				}
+				WARNING_SHOW = {SPELL_CAST_START = {override = mod.WarnToKick}},
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "kick",override = mod.PlayToKick}}
+			},
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {
+				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
+			},
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {
+				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 			}
-		}
+		},
 	},
 	[mod.SPELLS.FIREBALL.KEY] = {
-		KICK_WARN = {
+		CAST_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningInterruptCount", filter = "HasInterrupt"},
-				WARNING_SHOW = {
-					SPELL_CAST_START = {
-						override = function (boss_mod, trigger_data, warning, args)
-							--Warn the current kick group to kick the caster
-							if boss_mod.player_can_kick then
-								warning:Show(args.sourceName, boss_mod.SolveKickGroup())
-							end
-						end
-					}
-				},
-				PLAY_SOUND = {
-					SPELL_CAST_START = {
-						sound = "kick",
-						override = function (boss_mod, trigger_data, warning, args)
-							--Execute order Warning => Play. We only play sound here
-							if boss_mod.player_can_kick then
-								local base_sound = trigger_data.sound or "kick"
-								local kick_audio_string = base_sound .. boss_mod.vb.current_kick_group .. "r"
-								warning:Play(kick_audio_string)
-							end
-						end
-					}
-				}
+				WARNING_SHOW = {SPELL_CAST_START = {override = mod.WarnToKick}},
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "kick", override = mod.PlayToKick}}
+			},
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {
+				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
+			},
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {
+				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 			}
 		}
 	},
@@ -219,6 +219,24 @@ mod.BEHAVIOR = {
 local boss_unit_id = "boss1"
 mod.vb.kick_group_count = 3
 mod.vb.current_kick_group = 0
+
+--Shows a warning for the kick groups to kick
+function mod:WarnToKick(boss_mod, trigger_data, warning, args)
+	--Warn the current kick group to kick the caster
+	if boss_mod.player_can_kick then
+		warning:Show(args.sourceName, boss_mod.SolveKickGroup())
+	end
+end
+
+--Plays a warning for the kick group to kick
+function mod:PlayToKick(boss_mod, trigger_data, warning, args)
+	--Execute order Warning => Play. We only play sound here
+	if boss_mod.player_can_kick then
+		local base_sound = trigger_data.sound or "kick"
+		local kick_audio_string = base_sound .. boss_mod.vb.current_kick_group .. "r"
+		warning:Play(kick_audio_string)
+	end
+end
 
 --Solves the current kick group
 function mod:SolveKickGroup()
