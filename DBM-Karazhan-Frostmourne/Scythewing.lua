@@ -78,48 +78,60 @@ mod.TIMINGS = {
 --Define the model behavior
 mod.BEHAVIOR = {
 	[mod.SPELLS.BERSERK.KEY] = {
-		DEFAULT = {
-			TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
+		TIMER = {
+			DEFAULT = {
+				TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
+			}
 		}
 	},
 	[mod.SPELLS.DEADEN.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningYou"},
-			TIMER = {type = "NewCDTimer"},
-			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
-			WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
-			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou"}}
+		CAST_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningYou"},
+				TIMER = {type = "NewCDTimer"},
+				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou"}}
+			}
 		}
 	},
 	[mod.SPELLS.TAILSWEEP.KEY] = {
-		DEFAULT = {
-			TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_CAST_SUCCESS = {}}
+		CD = {
+			DEFAULT = {
+				TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_CAST_SUCCESS = {}}
+			}
 		}
 	},
 	[mod.SPELLS.FROSTBOLT_VOLLEY.KEY] = {
-		DEFAULT = {
-			TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {PHASE_START_3 = {}, SPELL_CAST_SUCCESS = {}}
+		CD = {
+			DEFAULT = {
+				TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {PHASE_START_3 = {}, SPELL_CAST_SUCCESS = {}}
+			}
 		}
 	},
 	[mod.SPELLS.BLISTERING_COLD.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningGTFO"},
-			TIMER = {type = "NewCDTimer"},
-			TIMER_STARTS = {PHASE_START_2 = {}, SPELL_CAST_START = {}},
-			WARNING_SHOW = {SPELL_CAST_START = {}},
-			PLAY_SOUND = {SPELL_CAST_START = {sound = "runaway"}}
+		CAST_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningGTFO"},
+				TIMER = {type = "NewCDTimer"},
+				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_CAST_START = {}},
+				WARNING_SHOW = {SPELL_CAST_START = {}},
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "runaway"}}
+			}
 		}
 	},
 	[mod.SPELLS.CONSUMPTION.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningMove"},
-			WARNING_SHOW = {
-				SPELL_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
-				SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
-			},
-			PLAY_SOUND = {
-				SPELL_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "runaway"},
-				SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "runaway"}
+		DAMAGE_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningMove"},
+				WARNING_SHOW = {
+					SPELL_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
+					SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
+				},
+				PLAY_SOUND = {
+					SPELL_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "runaway"},
+					SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "runaway"}
+				}
 			}
 		}
 	},

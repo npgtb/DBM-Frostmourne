@@ -41,23 +41,29 @@ mod.TIMINGS = {
 --Define the model behavior
 mod.BEHAVIOR = {
 	[mod.SPELLS.BERSERK.KEY] = {
-		DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}
+		TIMER = {
+			DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}
+		}
 	},
 	[mod.SPELLS.DEEP_FREEZE.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningYou"},
-			TIMER = {type = "NewCDTimer"},
-			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
-			SCAN_TRIGGER = {SPELL_CAST_START = {}},
-			WARNING_SHOW = {ON_SCAN = {}},
-			PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
+		WARN_CAST = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningYou"},
+				TIMER = {type = "NewCDTimer"},
+				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
+				SCAN_TRIGGER = {SPELL_CAST_START = {}},
+				WARNING_SHOW = {ON_SCAN = {}},
+				PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
+			}
 		}
 	},
 	[mod.SPELLS.FRENZY.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningDefensive"},
-			WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
-			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "defensive", condition = DBM_BEHAVIOR.IsTank}}
+		WARN_AURA = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningDefensive"},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "defensive", condition = DBM_BEHAVIOR.IsTank}}
+			}
 		}
 	}
 }

@@ -81,88 +81,104 @@ mod.TIMINGS = {
 --Define the model behavior
 mod.BEHAVIOR = {
 	[mod.SPELLS.BERSERK.KEY] = {
-		DEFAULT = {
-			TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
+		TIMER = {
+			DEFAULT = {
+				TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
+			}
 		}
 	},
 	[mod.SPELLS.BLIGHT_SMALL.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
-			WARNING_SHOW = {SPELL_AURA_APPLIED = {}}
+		APPLIED_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {}}
+			}
 		}
 	},
 	[mod.SPELLS.BLIGHT_BIG.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
-			WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
-			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow", condition = DBM_BEHAVIOR.CanCleanseDisease}}
+		APPLIED_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow", condition = DBM_BEHAVIOR.CanCleanseDisease}}
+			}
 		}
 	},
 	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveCurse"},
-			TIMER = {type = "NewCDTimer"},
-			TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
-			WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
-			PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "helpdispel", condition = DBM_BEHAVIOR.CanDecurse}}
+		APPLIED_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveCurse"},
+				TIMER = {type = "NewCDTimer"},
+				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "helpdispel", condition = DBM_BEHAVIOR.CanDecurse}}
+			}
 		}
 	},
 	[mod.SPELLS.FINGER_OF_DEATH.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningYou"},
-			WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
-			PLAY_SOUND = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
+		CAST_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
+				PLAY_SOUND = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
+			}
 		}
 	},
 	[mod.SPELLS.PERMAFROST.KEY] = {
-		DEFAULT = {
-			TIMER = {type = "NewCDTimer"},
-			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
-			WARNING = {type = "NewSpecialWarningGTFO"},
-			WARNING_SHOW = {
-				SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
-				SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
-			},
-			PLAY_SOUND = {
-				SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}, 
-				SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}
+		DAMAGE_WARN = {
+			DEFAULT = {
+				TIMER = {type = "NewCDTimer"},
+				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
+				WARNING = {type = "NewSpecialWarningGTFO"},
+				WARNING_SHOW = {
+					SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
+					SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
+				},
+				PLAY_SOUND = {
+					SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}, 
+					SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}
+				}
 			}
 		}
 	},
 	[mod.SPELLS.CHILL.KEY] = {
-		DEFAULT = {
-			WARNING = {type = "NewSpecialWarningGTFO"},
-			WARNING_SHOW = {
-				SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
-				SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
-			},
-			PLAY_SOUND = {
-				SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}, 
-				SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}
+		DAMAGE_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningGTFO"},
+				WARNING_SHOW = {
+					SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
+					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
+				},
+				PLAY_SOUND = {
+					SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}, 
+					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "watchfeet"}
+				}
 			}
 		}
 	},
 	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {
-		DEFAULT = {
-			TIMER = {type = "NewCDTimer"},
-			TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
-			WARNING = {type = "NewSpecialWarningStack", threshold = 2},
-			WARNING_SHOW = {
-				SPELL_AURA_APPLIED_DOSE = {
-					condition = function(boss_mod, args, spell_id, update_subtype) 
-						return args.amount > 2 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
-					end,
-					inject = "amount"
-				}
-			},
-			PLAY_SOUND = {
-				SPELL_AURA_APPLIED_DOSE = {
-					condition = function(boss_mod, args, spell_id, update_subtype) 
-						return args.amount > 2 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
-					end,
-					sound = "stackhigh"
-				}
-			},
+		APPLIED_WARN = {
+			DEFAULT = {
+				TIMER = {type = "NewCDTimer"},
+				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
+				WARNING = {type = "NewSpecialWarningStack", threshold = 2},
+				WARNING_SHOW = {
+					SPELL_AURA_APPLIED_DOSE = {
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.amount > 2 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						end,
+						inject = "amount"
+					}
+				},
+				PLAY_SOUND = {
+					SPELL_AURA_APPLIED_DOSE = {
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.amount > 2 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						end,
+						sound = "stackhigh"
+					}
+				},
+			}
 		}
 	},
 }
