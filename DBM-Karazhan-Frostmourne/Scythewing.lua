@@ -91,7 +91,14 @@ mod.BEHAVIOR = {
 				TIMER = {type = "NewCDTimer"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
-				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou"}}
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
+			}
+		},
+		TAUNT_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningTaunt"},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.NotOnSelfAndIsTank, inject = "destName"}},
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "tauntboss", condition = DBM_BEHAVIOR.NotOnSelfAndIsTank}}
 			}
 		}
 	},
