@@ -45,20 +45,24 @@ DBM_BEHAVIOR.WARNING_TYPE = {
 }
 
 --Define some warning default parameters for the behavior system
-DBM_BEHAVIOR.WARNING_CREATION_ARG_ORDER = {"text", "spell_id", "color", "filter", "a", "threshold", "b", "c", "sound", "icon"}
+DBM_BEHAVIOR.WARNING_CREATION_ARG_ORDER = {
+	"text", "spell_id", "color", "icon", "filter", "stacks",
+	"option_name", "option_version", "run_sound", 
+	"has_voice", "difficulty"
+}
 DBM_BEHAVIOR.WARNING_DEFAULT_PARAMS = {
-    NewSpecialWarningDispel = { spell_id = "", filter = "RemoveDisease", a = false, b = false, sound = 1, icon = 2 },
-    NewSpecialWarningGTFO = { spell_id = "", a = false, b = false, c = false, sound = 1, icon = 8 },
-    NewSpecialWarningYou = { spell_id = "", a = false, b = false, c = false, sound = 1, icon = 2 },
-    NewSpecialWarningStack = { spell_id = "", a = false, threshold = 1, b = false, c = false, sound = 1, icon = 6 },
-    NewSpecialWarningLookAway = { spell_id = "", a = false, b = false, c = false, sound = 1, icon = 2 },
-    NewSpecialWarningInterruptCount = { spell_id = "", filter = "HasInterrupt", b = false, c = false, sound = 1, icon = 2 },
-    NewSpecialWarningMove = { spell_id = "", a = false, b = false, c = false, sound = 1, icon = 2 },
-	NewSpecialWarning = { text = "", a = false, b = false, c = false, sound = 1, icon = 2 },
-    NewSpellAnnounce = { spell_id = "", a = 3, b = false, filter = "" },
+    NewSpecialWarningDispel = { spell_id = "", filter = "RemoveDisease", option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+    NewSpecialWarningGTFO = { spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 8 },
+    NewSpecialWarningYou = { spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+    NewSpecialWarningStack = { spell_id = "", filter = false, stacks = 1, option_name = false, option_version = false, run_sound = 1, has_voice = 6 },
+	NewSpecialWarningLookAway = { spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+	NewSpecialWarningInterruptCount = { spell_id = "", filter = "HasInterrupt", option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+	NewSpecialWarningMove = { spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+	NewSpecialWarning = { text = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+    NewSpellAnnounce = { spell_id = "", color = 3, icon = false, filter = ""},
 	NewCastAnnounce = { spell_id = "", color = 3},
-	NewSpecialWarningDefensive = {spell_id = "", a = false, b = false, c = false, icon = 1, sound = 2},
-	NewSpecialWarningTaunt = {spell_id = "", filter = "Tank", a = false, b = false, icon = 1, sound = 2}
+	NewSpecialWarningDefensive = {spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2},
+	NewSpecialWarningTaunt = {spell_id = "", filter = "Tank", option_name = false, option_version = false, run_sound = 1, has_voice = 2}
 }
 
 --Define timer types for the behavior system
@@ -68,11 +72,16 @@ DBM_BEHAVIOR.TIMER_TYPE = {
 	NewCastTimer = "NewCastTimer"
 }
 --Define some warning default parameters for the behavior system
-DBM_BEHAVIOR.TIMER_CREATION_ARG_ORDER = {"default_timing", "spell_id", "a", "b", "c", "color", "d", "icon"}
+DBM_BEHAVIOR.TIMER_CREATION_ARG_ORDER = {
+	"timing", "spell_id", "text", "option_default",
+	"option_name", "color_type", "texture", "icon",
+	"keep", "countdown", "countdown_max", "r", "g", "b",
+	"requires_combat", "is_priority"
+}
 DBM_BEHAVIOR.TIMER_DEFAULT_PARAMS = {
-    NewCDTimer = {default_timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", a = false, b = false, c = false, icon = 2},
-	NewBerserkTimer = {default_timing = DBM_BEHAVIOR.TIMER_DISABLED},
-	NewCastTimer = {default_timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", a = false, b = false, c = false, color = 3, d = false, icon = false}
+    NewCDTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = false, option_name = false, color_type = 2, texture = false, icon = false},
+	NewBerserkTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED},
+	NewCastTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = false, option_name = false, color_type = 3, texture = false, icon = false}
 }
 
 DBM_BEHAVIOR.HANDLE_CATEGORIES = {"TIMER_STARTS", "SCAN_TRIGGER", "WARNING_SHOW", "PLAY_SOUND"}
@@ -92,7 +101,8 @@ DBM_BEHAVIOR.INTERNAL_EVENTS = {
 	PHASE_START_7 = false,
 	PHASE_START_8 = false,
 	PHASE_START_9 = false,
-	MANUAL_CAST_MONITOR = false
+	MANUAL_CAST_MONITOR = false,
+	MANUAL_NEW_ENTITY = false,
 }
 
 --Phase announcment sounds
@@ -145,7 +155,7 @@ local function TryCreateDbmWarning(spell_behavior, spell_id, difficulty, boss_mo
 		--Check type and methods existence ([nil]==nil)
 		if method ~= nil then
 			--Create the warning args, set the spell_id override
-			warning.spell_id = spell_id
+			warning.spell_id = warning.spell_id or spell_id
 			local creation_args = MakeBehaviourArgs(
 				warning_type, warning, 
 				engine.WARNING_DEFAULT_PARAMS[warning_type], engine.WARNING_CREATION_ARG_ORDER
@@ -167,7 +177,7 @@ local function TryCreateDbmTimer(spell_behavior, spell_id, difficulty, boss_mod)
 		--Check type and methods existence ([nil]==nil)
 		if method ~= nil then
 			--Create the timer args, set the spell_id override
-			timer.spell_id = spell_id
+			timer.spell_id = timer.spell_id or spell_id
 			local creation_args = MakeBehaviourArgs(
 				timer_type, timer, 
 				engine.TIMER_DEFAULT_PARAMS[timer_type], engine.TIMER_CREATION_ARG_ORDER
@@ -198,7 +208,7 @@ local function NormalizeArgumentation(event, ...)
 end
 
 --Appends handlers to the boss mod for possible internal events
-local function AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, spell_id, difficulty, engine, utility)
+local function AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, trigger_data, spell_id, difficulty, engine, utility)
 	--Special case manual cast monitor
 	if trigger_name == "MANUAL_CAST_MONITOR" and encounter_spells ~= nil then
 		--Store the spell
@@ -216,6 +226,9 @@ local function AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, 
 				engine.HandleModelUpdate(spell_id, "ON_SCAN", self, {destName = target_name})
 			end
 		end
+	elseif trigger_name == "MANUAL_NEW_ENTITY" and trigger_data.entity ~= nil then
+		boss_mod.entity_monitor_entities = boss_mod.entity_monitor_entities or {}
+		boss_mod.entity_monitor_entities[trigger_data.entity] = true
 	end
 end
 
@@ -249,7 +262,7 @@ local function AppendHandlers(spell_behavior, spell_id, difficulty, boss_mod)
 				--Deal with combatlog events coming from dbm
 				AppendExternalHandlers(boss_mod, trigger_name, internal_events, engine)
 				--Deal with ON_SCAN and MANUAL_CAST_MONITOR
-				AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, spell_id, difficulty, engine, utility)
+				AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, trigger_data, spell_id, difficulty, engine, utility)
 			end
 		end
 	end
@@ -619,6 +632,9 @@ function DBM_BEHAVIOR.StopPhaseMonitor(boss_mod)
 	--Stop the manual health monitor
 	if boss_mod.boss_health_monitor then
 		boss_mod.boss_health_monitor:Cancel()
+	--Unregister UNIT_HEALTH
+	else
+		boss_mod:UnregisterShortTermEvents()
 	end
 end
 
@@ -691,6 +707,31 @@ function DBM_BEHAVIOR.TransitPhase(boss_mod, next_phase)
 end
 
 --Starts the manual spell casting monitor
+function DBM_BEHAVIOR.StartNewEntityMonitor(boss_mod)
+	--Do we have entities to monitor for?
+	if boss_mod.entity_monitor_entities == nil then
+		return
+	end
+	--Start the cast monitor	
+	local utility = DBM_KFU
+	local engine = DBM_BEHAVIOR
+	boss_mod.new_entity_monitor = utility.MonitorNewEntities(
+		boss_mod.creatureId, boss_mod.entity_monitor_entities,
+		function(entity_name) 
+			engine.HandleModelEvent("MANUAL_NEW_ENTITY", boss_mod, {entity = entity_name})
+		end
+	)
+end
+
+--Stop the manual spell casting monitor
+function DBM_BEHAVIOR.StopNewEntityMonitor(boss_mod)
+	--Stop the manual entity monitor
+	if boss_mod.new_entity_monitor then
+		boss_mod.new_entity_monitor:Cancel()
+	end
+end
+
+--Starts the manual spell casting monitor
 function DBM_BEHAVIOR.StartSpellCastingMonitor(boss_mod)
 	--Do we have spells to monitor for?
 	if boss_mod.cast_monitor_spells == nil then
@@ -712,7 +753,7 @@ end
 
 --Stop the manual spell casting monitor
 function DBM_BEHAVIOR.StopSpellCastingMonitor(boss_mod)
-	--Stop the manual health monitor
+	--Stop the manual casting monitor
 	if boss_mod.boss_casting_monitor then
 		boss_mod.boss_casting_monitor:Cancel()
 	end

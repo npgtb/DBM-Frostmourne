@@ -84,7 +84,7 @@ mod.BEHAVIOR = {
 		},
 		CAST_TIMER = {
 			DEFAULT = {
-				TIMER = {type = "NewCastTimer", default_timing = 5, icon = DBM_COMMON_L.DEADLY_ICON},
+				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON},
 				TIMER_STARTS = {SPELL_CAST_START = {}}
 			}
 		}
@@ -110,7 +110,7 @@ mod.BEHAVIOR = {
 		},
 		CAST_TIMER = {
 			DEFAULT = {
-				TIMER = {type = "NewCastTimer", default_timing = 5, icon = DBM_COMMON_L.DEADLY_ICON},
+				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON},
 				TIMER_STARTS = {SPELL_CAST_START = {}}
 			}
 		}

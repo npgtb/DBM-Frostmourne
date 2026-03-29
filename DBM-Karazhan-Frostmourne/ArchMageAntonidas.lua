@@ -69,7 +69,8 @@ mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
 	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {DEFAULT = 15},
 	[mod.SPELLS.PERMAFROST.KEY] = {DEFAULT = 30, ON_COMBAT_START = 20},
-	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {DEFAULT = 12}
+	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {DEFAULT = 12},
+	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {ADD_TIMER = {DEFAULT = 75, ON_COMBAT_START = 50}}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -115,7 +116,7 @@ mod.BEHAVIOR = {
 			}
 		}
 	},
-	[mod.SPELLS.FINGER_OF_DEATH.KEY] = {
+	--[[[mod.SPELLS.FINGER_OF_DEATH.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningYou"},
@@ -123,7 +124,7 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
 			}
 		}
-	},
+	},--]]
 	[mod.SPELLS.PERMAFROST.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
@@ -161,7 +162,7 @@ mod.BEHAVIOR = {
 			DEFAULT = {
 				TIMER = {type = "NewCDTimer"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
-				WARNING = {type = "NewSpecialWarningStack", threshold = 2},
+				WARNING = {type = "NewSpecialWarningStack", stacks = 2},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype) 
@@ -181,6 +182,24 @@ mod.BEHAVIOR = {
 			}
 		}
 	},
+	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
+		ADD_TIMER = {
+			DEFAULT = {
+				TIMER = {
+					type = "NewCDTimer", spell_id = 31687
+				},
+				TIMER_STARTS = {
+					ON_COMBAT_START = {inject = "offset"}, 
+					MANUAL_NEW_ENTITY = {
+						entity = "Water Elemental",
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.entity ~= nil and args.entity == "Water Elemental"
+						end
+					}
+				}
+			}
+		}
+	}
 }
 
 local boss_unit_id = "boss1"
@@ -189,12 +208,18 @@ function mod:OnCombatStart(delay)
 	--Fetch difficulty from dbm
 	DBM_BEHAVIOR.CombatStartFetchData(mod)
 	DBM_BEHAVIOR.StartPhaseMonitor(mod, boss_unit_id)
+	DBM_BEHAVIOR.StartNewEntityMonitor(mod)
 	DBM_BEHAVIOR.HandleModelEvent("ON_COMBAT_START", mod, {offset=-delay})
 end
 
 function mod:OnCombatEnd(wipe)
     --Stop the monitors
+	DBM_BEHAVIOR.StopNewEntityMonitor(mod)
 	DBM_BEHAVIOR.StopPhaseMonitor(mod)
+end
+
+function mod:INSTANCE_ENCOUNTER_ENGAGE_UNIT()
+    print("HERE WE GO")
 end
 
 --Initialize the model

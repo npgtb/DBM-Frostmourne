@@ -116,7 +116,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.MORTAL_WOUND.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningStack", threshold = 4},
+				WARNING = {type = "NewSpecialWarningStack", stacks = 4},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype) 

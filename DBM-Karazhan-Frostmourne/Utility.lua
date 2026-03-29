@@ -160,6 +160,7 @@ local function ResetMonitor(monitor_obj)
 		--Zero the data
 		monitor_obj.unit = nil
 		monitor_obj.count = 0
+		monitor_obj.found = nil
 	end
 end
 
@@ -245,6 +246,60 @@ function DBM_KFU.MonitorBossCasting(creature_id, spell_names, callback_func, fre
 		freaquency, 
 		function()
 			FindAndMonitorCasting(creature_id, spell_names, storage, callback_func)
+		end
+	)
+	--Return handle for the mod
+	return storage.timer_obj
+end
+
+--Manually monitor what entities exists around us
+local function FindAndMonitorEntities(entity_names, storage, callback_func)
+	local found = storage.found
+	--Loop all the nameplates
+	for _, plate in ipairs(DBM_KFU.NAMEPLATE_ENTITIES) do
+		--If entity exists and not cached
+		if UnitExists(plate) then
+			local unit_name = UnitName(plate)
+			if found[plate] ~= unit_name then
+				--See if entity in our search list
+				if entity_names[unit_name] ~= nil then
+					--Good hit, callback
+					found[plate] = unit_name
+					callback_func(unit_name)
+				else
+					found[plate] = nil
+				end 
+			end
+		--If not found remove old entries
+		elseif found[plate] ~= nil then
+			found[plate] = nil
+		end
+	end
+end
+
+--Access point to the manual entity scanning
+function DBM_KFU.MonitorNewEntities(creature_id, entity_names, callback_func, freaquency)
+	DBM_KFU.NAMEPLATE_ENTITIES = {
+			"nameplate1", "nameplate2", "nameplate3", "nameplate4",
+			"nameplate5", "nameplate6", "nameplate7", "nameplate8",
+			"nameplate9", "nameplate10", "nameplate11", "nameplate12",
+			"nameplate13", "nameplate14", "nameplate15", "nameplate16",
+			"nameplate17", "nameplate18", "nameplate19", "nameplate20",
+			"nameplate21", "nameplate22", "nameplate23", "nameplate24", 
+			"nameplate25", "nameplate26", "nameplate27", "nameplate28", 
+			"nameplate29", "nameplate30", "nameplate31", "nameplate32", 
+			"nameplate33", "nameplate34", "nameplate35", "nameplate36",
+			"nameplate37", "nameplate38", "nameplate39", "nameplate40"
+		}
+	freaquency = freaquency or 1
+	--Get storage and stop any previous timers
+	local storage = GetStorageForCreature(creature_id, "entity_monitor")
+	ResetMonitor(storage)
+	storage.found = {}
+	storage.timer_obj = C_Timer.NewTicker(
+		freaquency, 
+		function()
+			FindAndMonitorEntities(entity_names, storage, callback_func)
 		end
 	)
 	--Return handle for the mod
