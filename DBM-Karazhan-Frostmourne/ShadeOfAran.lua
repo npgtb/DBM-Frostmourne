@@ -12,8 +12,24 @@ mod.MAX_PHASES = 2
 --Spell ids of the counter
 mod.SPELLS = {
 	BERSERK = {KEY = "BERSERK", NAME = "Berserk", ID = {DEFAULT = 26662}},
-	FROSTBOLT = {KEY = "FROSTBOLT", NAME = "Frostbolt", ID = {DEFAULT = 29954}},
-	FIREBALL = {KEY = "FIREBALL", NAME = "Fireball", ID = {DEFAULT = 29953}},
+	FROSTBOLT = {KEY = "FROSTBOLT", NAME = "Frostbolt", ID = {
+			DEFAULT = 29954,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250058,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250058
+		}
+	},
+	FIREBALL = {KEY = "FIREBALL", NAME = "Fireball", ID = {
+			DEFAULT = 29953,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250059,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250059
+		}
+	},
+	ARCANE_MISSILES = {KEY = "ARCANE_MISSILES", NAME = "Arcane Missiles", ID = {
+			DEFAULT = 29956,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250060,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250060
+		}
+	},
 	FLAME_WREATH_CAST = {KEY = "FLAME_WREATH_CAST", NAME = "Flame Wreath", ID = {DEFAULT = 30004}},
 	FLAME_WREATH = {KEY = "FLAME_WREATH", NAME = "Flame Wreath", ID = {DEFAULT = 29946}},
 	WATER_BOLT = {KEY = "WATER_BOLT", NAME = "Water Bolt", ID = {DEFAULT = 37054}},
@@ -21,8 +37,8 @@ mod.SPELLS = {
 	CHAINS_OF_ICE = {KEY = "CHAINS_OF_ICE", NAME = "Chains of Ice", ID = {DEFAULT = 29991}},
 	SUMMON_BLIZZARD = {KEY = "SUMMON_BLIZZARD", NAME = "Summon Blizzard", ID = {DEFAULT = 29969}},
 	BLIZZARD = {KEY = "BLIZZARD", NAME = "Blizzard", ID = {DEFAULT = 29951}},
-	ARCANE_MISSILES = {KEY = "ARCANE_MISSILES", NAME = "Arcane Missiles", ID = {DEFAULT = 29956}},
-	COUNTERSPELL = {KEY = "COUNTERSPELL", NAME = "Counterspell", ID = {DEFAULT = 29961}}
+	COUNTERSPELL = {KEY = "COUNTERSPELL", NAME = "Counterspell", ID = {DEFAULT = 29961}},
+	MASS_SLOW = {KEY = "MASS SLOW", NAME = "Mass Slow", ID = {DEFAULT = 30035}}
 }
 
 --We transition based on his health %
@@ -40,20 +56,20 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
 	[mod.SPELLS.FLAME_WREATH_CAST.KEY] = {
-		DEFAULT = 63,
+		DEFAULT = 60,
 		CAST_TIMER = {
 			DEFAULT = 5
 		}
 	},
 	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
-		DEFAULT = 67,
+		DEFAULT = 60,
 		CAST_TIMER = {
 			DEFAULT = 5
 		}
 	},
 	[mod.SPELLS.SUMMON_BLIZZARD.KEY] = {DEFAULT = 63},
 	[mod.SPELLS.CHAINS_OF_ICE.KEY] = {DEFAULT = 60},
-	[mod.SPELLS.COUNTERSPELL.KEY] = {DEFAULT = 6}
+	[mod.SPELLS.COUNTERSPELL.KEY] = {DEFAULT = 6},
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -93,6 +109,26 @@ mod.BEHAVIOR = {
 			}
 		}
 	},
+	[mod.SPELLS.MASS_SLOW.KEY] = {
+		CAST_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningDispel", filter = "MagicDispeller", option_name = "Mass Slow dispell warning"},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return DBM_BEHAVIOR.CanDispell(boss_mod, args) and DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+						end, 
+					}
+				},
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return DBM_BEHAVIOR.CanDispell(boss_mod, args) and DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+						end, 
+						sound = "helpdispel"
+					}
+				}
+			}
+		}
+	},
 	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
@@ -100,7 +136,7 @@ mod.BEHAVIOR = {
 				TIMER = {type = "NewCDTimer", option_name = "Arcane Explosion cooldown"},
 				TIMER_STARTS = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
-				PLAY_SOUND = {SPELL_CAST_START = {sound = "runtoedge"}}
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "runtoedge", condition = DBM_BEHAVIOR.CanNotDispell}}
 			}
 		},
 		CAST_TIMER = {
@@ -180,13 +216,15 @@ mod.BEHAVIOR = {
 			},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Frostbolt warning"},
-				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
-				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
+				SCAN_TRIGGER = {SPELL_CAST_START = {frequency = 0.05, scan_attempts = 10}},
+				WARNING_SHOW = {ON_SCAN = {}},
+				PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
 			},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Frostbolt warning"},
-				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
-				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
+				SCAN_TRIGGER = {SPELL_CAST_START = {frequency = 0.05, scan_attempts = 10}},
+				WARNING_SHOW = {ON_SCAN = {}},
+				PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
 			}
 		},
 	},
@@ -199,13 +237,15 @@ mod.BEHAVIOR = {
 			},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Fireball warning"},
-				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
-				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
+				SCAN_TRIGGER = {SPELL_CAST_START = {frequency = 0.05, scan_attempts = 10}},
+				WARNING_SHOW = {ON_SCAN = {}},
+				PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
 			},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Fireball warning"},
-				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
-				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
+				SCAN_TRIGGER = {SPELL_CAST_START = {frequency = 0.05, scan_attempts = 10}},
+				WARNING_SHOW = {ON_SCAN = {}},
+				PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
 			}
 		}
 	},

@@ -852,6 +852,11 @@ function DBM_BEHAVIOR.CanDispell(boss_mod, args, spell_id, update_subtype)
 	return boss_mod.player_can_dispell
 end
 
+--Common conditions, Do we not have ability to dispell?
+function DBM_BEHAVIOR.CanNotDispell(boss_mod, args, spell_id, update_subtype)
+	return not boss_mod.player_can_dispell
+end
+
 --Common conditions, Can we decurse?
 function DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype)
 	return boss_mod.player_can_decurse
