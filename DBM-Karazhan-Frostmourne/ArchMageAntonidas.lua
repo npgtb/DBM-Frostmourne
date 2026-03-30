@@ -5,7 +5,6 @@ local L		= mod:GetLocalizedStrings()
 mod:SetRevision("20250929220131")
 mod:SetCreatureID(354288)
 mod:SetEncounterID(924)
-mod:SetModelID(18720)
 mod:RegisterCombat("combat")
 
 mod.MAX_PHASES = 3
@@ -88,12 +87,16 @@ mod.BEHAVIOR = {
 		TIMER = {DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}}
 	},
 	[mod.SPELLS.BLIGHT_SMALL.KEY] = {
-		APPLIED_WARN = {DEFAULT = {WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"}, WARNING_SHOW = {SPELL_AURA_APPLIED = {}}}}
+		APPLIED_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Small Blight cure warning"}, 
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {}}}
+		}
 	},
 	[mod.SPELLS.BLIGHT_BIG.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
+				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Big Blight cure warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow", condition = DBM_BEHAVIOR.CanCleanseDisease}}
 			}
@@ -102,8 +105,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveCurse"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveCurse", option_name = "Curse of Doom decurse warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Curse of Doom cooldown"},
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "helpdispel", condition = DBM_BEHAVIOR.CanDecurse}}
@@ -122,9 +125,9 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.PERMAFROST.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer"},
+				TIMER = {type = "NewCDTimer", option_name = "Permafrost damage announcment"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
-				WARNING = {type = "NewSpecialWarningGTFO"},
+				WARNING = {type = "NewSpecialWarningGTFO", option_name = "Permafrost damage warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
 					SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
@@ -139,7 +142,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.CHILL.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningGTFO"},
+				WARNING = {type = "NewSpecialWarningGTFO", option_name = "Blizzard damage announcement"},
 				WARNING_SHOW = {
 					SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
 					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
@@ -154,9 +157,9 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer"},
+				TIMER = {type = "NewCDTimer", option_name = "Shroud of Darkness cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
-				WARNING = {type = "NewSpecialWarningStack", stacks = 2},
+				WARNING = {type = "NewSpecialWarningStack", stacks = 2, option_name = "Shroud of Darkness stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype) 
@@ -180,7 +183,7 @@ mod.BEHAVIOR = {
 		WATER_ELEMENTAL_TIMER = {
 			DEFAULT = {
 				TIMER = {
-					type = "NewCDTimer", spell_id = 31687
+					type = "NewCDTimer", spell_id = 31687, option_name = "Summon Water Elemental cooldown"
 				},
 				TIMER_STARTS = {
 					ON_COMBAT_START = {inject = "offset"}, 
@@ -196,7 +199,7 @@ mod.BEHAVIOR = {
 		DEATH_ELEMENTAL_TIMER = {
 			DEFAULT = {
 				TIMER = {
-					type = "NewCDTimer", spell_id = 697, text = "Death Elemental"
+					type = "NewCDTimer", spell_id = 697, text = "Death Elemental", option_name = "Summon Death Elemental cooldown"
 				},
 				TIMER_STARTS = {
 					ON_COMBAT_START = {inject = "offset"}, 

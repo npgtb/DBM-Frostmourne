@@ -4,7 +4,6 @@ local L		= mod:GetLocalizedStrings()
 mod:SetRevision("20250929220131")
 mod:SetCreatureID(354276)
 mod:SetEncounterID(924)
-mod:SetModelID(18720)
 mod:RegisterCombat("combat")
 
 mod.MAX_PHASES = 4
@@ -72,13 +71,18 @@ mod.BEHAVIOR = {
 		TIMER = {DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}}
 	},
 	[mod.SPELLS.FEAR.KEY] = {
-		CD = {DEFAULT = {TIMER = {type = "NewCDTimer"},TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}}}}
+		CD = {
+			DEFAULT = {
+				TIMER = {type = "NewCDTimer", option_name = "Fear cooldown"},
+				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}}
+			}
+		}
 	},
 	[mod.SPELLS.CHAOS_BOLT.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningYou"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Chaos Bolt warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Chaos Bolt cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 				SCAN_TRIGGER = {SPELL_CAST_START = {frequency = 0.05, scan_attempts = 10}},
 				WARNING_SHOW = {ON_SCAN = {}},
@@ -88,8 +92,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.BLOOD_MIRROR.KEY] = {
 		AURA_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningYou"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Blood Mirror warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Blood Mirror cooldown"},
 				TIMER_STARTS = {PHASE_START_3 = {}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.IsTargetOrDest}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.IsTargetOrDest, sound = "targetyou"}}
@@ -99,7 +103,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.SOUL_FLAY.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Soul Flay warning"},
 				WARNING_SHOW = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf, sound = "targetyou"}}
 			}
@@ -108,7 +112,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.MORTAL_WOUND.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningStack", stacks = 4},
+				WARNING = {type = "NewSpecialWarningStack", stacks = 4, option_name = "Mortal Found stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype) 
@@ -130,15 +134,15 @@ mod.BEHAVIOR = {
 	},
 	[mod.SPELLS.COLDFLAME_SUMMON.KEY] = {
 		CD = {
-			DEFAULT = {TIMER = {type = "NewCDTimer"},TIMER_STARTS = {PHASE_START_4 = {}, SPELL_SUMMON = {}}},
-			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {TIMER = {type = "NewCDTimer"},TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_SUMMON = {}}},
-			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {TIMER = {type = "NewCDTimer"},TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_SUMMON = {}}},
+			DEFAULT = {TIMER = {type = "NewCDTimer", option_name = "Coldflame summon cooldown"},TIMER_STARTS = {PHASE_START_4 = {}, SPELL_SUMMON = {}}},
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {TIMER = {type = "NewCDTimer", option_name = "Coldflame summon cooldown"},TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_SUMMON = {}}},
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {TIMER = {type = "NewCDTimer", option_name = "Coldflame summon cooldown"},TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_SUMMON = {}}},
 		}
 	},
 	[mod.SPELLS.COLDFLAME.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningGTFO"},
+				WARNING = {type = "NewSpecialWarningGTFO", option_name = "Coldflame damage warning"},
 				WARNING_SHOW = {
 					SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
 					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
@@ -153,9 +157,9 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.DEATH_AND_DECAY.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer"},
+				TIMER = {type = "NewCDTimer", option_name = "Death and Decay cooldown"},
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_CAST_SUCCESS = ""},
-				WARNING = {type = "NewSpecialWarningGTFO"},
+				WARNING = {type = "NewSpecialWarningGTFO", option_name = "Death and Decay damage warning"},
 				WARNING_SHOW = {
 					SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
 					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
@@ -170,7 +174,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.AURA_OF_FEAR.KEY] = {
 		TURN_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningLookAway"},
+				WARNING = {type = "NewSpecialWarningLookAway", option_name = "Aura of Fear warning"},
 				WARNING_SHOW = {MANUAL_CAST_MONITOR = {condition = DBM_BEHAVIOR.AntiSpam}},
 				PLAY_SOUND = {MANUAL_CAST_MONITOR = {condition = DBM_BEHAVIOR.AntiSpam, sound = "turnaway"}}
 			}

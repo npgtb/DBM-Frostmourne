@@ -5,7 +5,6 @@ local L		= mod:GetLocalizedStrings()
 mod:SetRevision("20250929220131")
 mod:SetCreatureID(354280)
 mod:SetEncounterID(924)
-mod:SetModelID(18720)
 mod:RegisterCombat("combat")
 
 mod.MAX_PHASES = 2
@@ -71,8 +70,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FLAME_WREATH_CAST.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewCastAnnounce"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewCastAnnounce", option_name = "Flame Wreath cast warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Flame Wreath cooldown"},
 				TIMER_STARTS = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "aesoon"}}
@@ -80,7 +79,7 @@ mod.BEHAVIOR = {
 		},
 		CAST_TIMER = {
 			DEFAULT = {
-				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON},
+				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Flame Wreath cast timer"},
 				TIMER_STARTS = {SPELL_CAST_START = {}}
 			}
 		}
@@ -88,7 +87,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FLAME_WREATH.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarning", text = "Stop Moving!"},
+				WARNING = {type = "NewSpecialWarning", text = "Stop Moving!", option_name = "Flame Wreath stop moving warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "stopmove", condition = DBM_BEHAVIOR.OnSelf}}
 			}
@@ -97,8 +96,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningMove"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningMove", option_name = "Arcane Explosion cast warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Arcane Explosion cooldown"},
 				TIMER_STARTS = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "runtoedge"}}
@@ -106,7 +105,7 @@ mod.BEHAVIOR = {
 		},
 		CAST_TIMER = {
 			DEFAULT = {
-				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON},
+				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Arcane Explosion cast timer"},
 				TIMER_STARTS = {SPELL_CAST_START = {}}
 			}
 		}
@@ -114,8 +113,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.CHAINS_OF_ICE.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "MagicDispeller"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningDispel", filter = "MagicDispeller", option_name = "Chains of Ice cast warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Chains of Ice cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = { condition = DBM_BEHAVIOR.CanDispell, inject = "destName" }}
 			}
@@ -124,7 +123,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.ARCANE_MISSILES.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Arcane Missiles warning"},
 				WARNING_SHOW = {SPELL_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}},
 				PLAY_SOUND = {SPELL_DAMAGE = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelfAntiSpam}}
 			}
@@ -133,7 +132,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.SUMMON_BLIZZARD.KEY] = {
 		CD = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer"},
+				TIMER = {type = "NewCDTimer", option_name = "Summon Blizzard cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 			}
 		}
@@ -141,8 +140,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.COUNTERSPELL.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningYou"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Counterspell warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Counterspell cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
 				WARNING_SHOW = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_CAST_SUCCESS = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
@@ -152,7 +151,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.BLIZZARD.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningMove"},
+				WARNING = {type = "NewSpecialWarningMove", option_name = "Blizzard damage warning"},
 				WARNING_SHOW = {
 					SPELL_PERIODIC_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
 					SPELL_PERIODIC_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}
@@ -167,7 +166,7 @@ mod.BEHAVIOR = {
 	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
 		ADDS_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarning", text = "Kill the adds!"},
+				WARNING = {type = "NewSpecialWarning", text = "Kill the adds!", option_name = "Kill adds warning"},
 				WARNING_SHOW = {PHASE_START_2 = {}},
 			}
 		}
@@ -175,17 +174,17 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FROSTBOLT.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningInterruptCount", filter = "HasInterrupt"},
+				WARNING = {type = "NewSpecialWarningInterruptCount", filter = "HasInterrupt", option_name = "Kick Frostbolt warning"},
 				WARNING_SHOW = {SPELL_CAST_START = {override = mod.WarnToKick}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "kick",override = mod.PlayToKick}}
 			},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {
-				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Frostbolt warning"},
 				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 			},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {
-				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Frostbolt warning"},
 				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 			}
@@ -194,17 +193,17 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FIREBALL.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningInterruptCount", filter = "HasInterrupt"},
+				WARNING = {type = "NewSpecialWarningInterruptCount", filter = "HasInterrupt", option_name = "Kick Fireball warning"},
 				WARNING_SHOW = {SPELL_CAST_START = {override = mod.WarnToKick}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "kick", override = mod.PlayToKick}}
 			},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {
-				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Fireball warning"},
 				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 			},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {
-				WARNING = {type = "NewSpecialWarningYou"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Fireball warning"},
 				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
 			}

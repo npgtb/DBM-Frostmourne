@@ -4,7 +4,6 @@ local L		= mod:GetLocalizedStrings()
 mod:SetRevision("20250929220131")
 mod:SetCreatureID(354272)
 mod:SetEncounterID(924)
-mod:SetModelID(18720)
 mod:RegisterCombat("combat")
 
 --Spell ids of the counter
@@ -46,8 +45,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.DEEP_FREEZE.KEY] = {
 		WARN_CAST = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningYou"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Deep Freeze warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Deep Freeze cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 				SCAN_TRIGGER = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {ON_SCAN = {}},
@@ -58,7 +57,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FRENZY.KEY] = {
 		WARN_AURA = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDefensive"},
+				WARNING = {type = "NewSpecialWarningDefensive", option_name = "Frenzy warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "defensive", condition = DBM_BEHAVIOR.IsTank}}
 			}

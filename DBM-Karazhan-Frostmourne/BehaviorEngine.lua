@@ -643,13 +643,18 @@ function DBM_BEHAVIOR.HandleModelEvent(event, boss_mod, args)
 end
 
 --Create phase warnings for possible phases
-local function CreatePhaseWarnings(boss_mod, max_phases)
+local function CreatePhasingDBM(boss_mod, max_phases)
 	boss_mod.phase_warnings = {}
+	local boss_name = DBM_KFU.GetBossName(boss_mod)
 	local max_warnings = max_phases - 1
 	--create max_phases-1 transit soon warnings
 	for phase_id = 1, max_warnings do
-		boss_mod.phase_warnings[phase_id] = boss_mod:NewPrePhaseAnnounce(phase_id + 1)
+		local option_name = boss_name .. ": Warn phase " .. (phase_id + 1) .. " soon"
+		boss_mod.phase_warnings[phase_id] = boss_mod:NewPrePhaseAnnounce(phase_id + 1, nil, nil, nil, option_name)
 	end
+	--Create the phase announcer
+	local option_name = boss_name .. ": Phase start warning"
+	boss_mod.phase_announcer = boss_mod:NewPhaseAnnounce(2, 2, nil, nil, option_name, nil, nil, 2)
 end
 
 --Initialize the phase monitoring system
@@ -661,9 +666,7 @@ function DBM_BEHAVIOR.InitPhaseMonitor(boss_mod, boss_unit, max_phases)
 	--Store boss unit id and create phase warnings
 	boss_mod.boss_unit_id = boss_unit
 	boss_mod.phase_warning_triggerd = false
-	CreatePhaseWarnings(boss_mod, max_phases)
-	--Create the phase announcer
-	boss_mod.phase_announcer = boss_mod:NewPhaseAnnounce(2, 2, nil, nil, nil, nil, nil, 2)
+	CreatePhasingDBM(boss_mod, max_phases)
 	--Append the health functions to the boss mod
 	if boss_mod.UNIT_HEALTH == nil then
 		boss_mod.UNIT_HEALTH = function(self, uId)

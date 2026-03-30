@@ -4,7 +4,6 @@ local L		= mod:GetLocalizedStrings()
 mod:SetRevision("20250929220131")
 mod:SetCreatureID(354284)
 mod:SetEncounterID(924)
-mod:SetModelID(18720)
 mod:RegisterCombat("combat")
 
 mod.MAX_PHASES = 4
@@ -78,13 +77,21 @@ mod.TIMINGS = {
 --Define the model behavior
 mod.BEHAVIOR = {
 	[mod.SPELLS.BERSERK.KEY] = {TIMER = {DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}}},
-	[mod.SPELLS.TAILSWEEP.KEY] = {CD = {DEFAULT = {TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_CAST_SUCCESS = {}}}}},
-	[mod.SPELLS.FROSTBOLT_VOLLEY.KEY] = {CD = {DEFAULT = {TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {PHASE_START_3 = {}, SPELL_CAST_SUCCESS = {}}}}},
+	[mod.SPELLS.TAILSWEEP.KEY] = {
+		CD = {
+			DEFAULT = {TIMER = {type = "NewCDTimer", option_name = "Tail Sweep cooldown"}, TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_CAST_SUCCESS = {}}}
+		}
+	},
+	[mod.SPELLS.FROSTBOLT_VOLLEY.KEY] = {
+		CD = {
+			DEFAULT = {TIMER = {type = "NewCDTimer", option_name = "Frostbolt volley cooldown"}, TIMER_STARTS = {PHASE_START_3 = {}, SPELL_CAST_SUCCESS = {}}}
+		}
+	},
 	[mod.SPELLS.DEADEN.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningYou"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningYou", option_name = "Deaden warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Deaden cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
@@ -92,7 +99,7 @@ mod.BEHAVIOR = {
 		},
 		TAUNT_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningTaunt"},
+				WARNING = {type = "NewSpecialWarningTaunt", option_name = "Deaden taunt warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.NotOnSelfAndIsTank, inject = "destName"}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "tauntboss", condition = DBM_BEHAVIOR.NotOnSelfAndIsTank}}
 			}
@@ -101,8 +108,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.BLISTERING_COLD.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningGTFO"},
-				TIMER = {type = "NewCDTimer"},
+				WARNING = {type = "NewSpecialWarningGTFO", option_name = "Blistering Cold warning"},
+				TIMER = {type = "NewCDTimer", option_name = "Blistering Cold cooldown"},
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "runaway"}}
@@ -112,7 +119,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.CONSUMPTION.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningMove"},
+				WARNING = {type = "NewSpecialWarningMove", option_name = "Consumption warning"},
 				WARNING_SHOW = {
 					SPELL_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}, 
 					SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}

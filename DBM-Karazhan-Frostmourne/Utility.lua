@@ -1,6 +1,11 @@
 --Shared utility namespace for the DBM_Karazhan_Frostmourne module
 DBM_KFU = DBM_KFU or {}
 
+--Fetches the localized boss name
+function DBM_KFU.GetBossName(boss_mod)
+	return boss_mod:GetLocalizedStrings().name
+end
+
 --Solves the spells name from the spell table using its id
 function DBM_KFU.SpellIdToName(spells, spell_id, difficulty)
 	if spell_id == DBM_BEHAVIOR.SPELL_UNKNOWN_ID then return "Unkown" end
