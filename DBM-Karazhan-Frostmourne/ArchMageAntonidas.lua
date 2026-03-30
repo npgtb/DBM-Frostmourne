@@ -56,11 +56,15 @@ mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT = {
 	[DBM_BEHAVIOR.PHASES.PHASE_ONE] = {THRESHOLD = 60, WARNING = 65, NEXT = DBM_BEHAVIOR.PHASES.PHASE_TWO},
 	[DBM_BEHAVIOR.PHASES.PHASE_TWO] = {THRESHOLD = 10, WARNING = 15, NEXT = DBM_BEHAVIOR.PHASES.PHASE_THREE}
 }
+mod.PHASE_HEROIC_TRANSITION_THRESHOLDS_DEFAULT = {
+	[DBM_BEHAVIOR.PHASES.PHASE_ONE] = {THRESHOLD = 60, WARNING = 65, NEXT = DBM_BEHAVIOR.PHASES.PHASE_TWO},
+	[DBM_BEHAVIOR.PHASES.PHASE_TWO] = {THRESHOLD = 20, WARNING = 25, NEXT = DBM_BEHAVIOR.PHASES.PHASE_THREE}
+}
 mod.PHASE_TRANSITION_THRESHOLDS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { TRANSITION_DEFAULT = mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT },
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = { TRANSITION_DEFAULT = mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT },
-	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = { TRANSITION_DEFAULT = mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT },
-	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = { TRANSITION_DEFAULT = mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT },
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = { TRANSITION_DEFAULT = mod.PHASE_HEROIC_TRANSITION_THRESHOLDS_DEFAULT },
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = { TRANSITION_DEFAULT = mod.PHASE_HEROIC_TRANSITION_THRESHOLDS_DEFAULT },
 }
 
 --Timing tables
@@ -90,14 +94,14 @@ mod.BEHAVIOR = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Small Blight cure warning"}, 
-				WARNING_SHOW = {SPELL_AURA_APPLIED = {}}}
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName"}}}
 		}
 	},
 	[mod.SPELLS.BLIGHT_BIG.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Big Blight cure warning"},
-				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName"}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow", condition = DBM_BEHAVIOR.CanCleanseDisease}}
 			}
 		}
@@ -108,7 +112,7 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveCurse", option_name = "Curse of Doom decurse warning"},
 				TIMER = {type = "NewCDTimer", option_name = "Curse of Doom cooldown"},
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
-				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName"}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "helpdispel", condition = DBM_BEHAVIOR.CanDecurse}}
 			}
 		}
@@ -125,7 +129,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.PERMAFROST.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer", option_name = "Permafrost damage announcment"},
+				TIMER = {type = "NewCDTimer", option_name = "Permafrost damage announcement"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
 				WARNING = {type = "NewSpecialWarningGTFO", option_name = "Permafrost damage warning"},
 				WARNING_SHOW = {
