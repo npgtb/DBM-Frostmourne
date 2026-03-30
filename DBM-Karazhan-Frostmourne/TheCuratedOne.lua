@@ -69,18 +69,10 @@ mod.TIMINGS = {
 --Define the model behavior
 mod.BEHAVIOR = {
 	[mod.SPELLS.BERSERK.KEY] = {
-		TIMER = {
-			DEFAULT = {
-				TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
-			}
-		}
+		TIMER = {DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}}
 	},
 	[mod.SPELLS.FEAR.KEY] = {
-		CD = {
-			DEFAULT = {
-				TIMER = {type = "NewCDTimer"},TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}}
-			}
-		}
+		CD = {DEFAULT = {TIMER = {type = "NewCDTimer"},TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}}}}
 	},
 	[mod.SPELLS.CHAOS_BOLT.KEY] = {
 		CAST_WARN = {
@@ -138,9 +130,9 @@ mod.BEHAVIOR = {
 	},
 	[mod.SPELLS.COLDFLAME_SUMMON.KEY] = {
 		CD = {
-			DEFAULT = {
-				TIMER = {type = "NewCDTimer"},TIMER_STARTS = {PHASE_START_4 = {}, SPELL_SUMMON = {}}
-			}
+			DEFAULT = {TIMER = {type = "NewCDTimer"},TIMER_STARTS = {PHASE_START_4 = {}, SPELL_SUMMON = {}}},
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {TIMER = {type = "NewCDTimer"},TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_SUMMON = {}}},
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {TIMER = {type = "NewCDTimer"},TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_SUMMON = {}}},
 		}
 	},
 	[mod.SPELLS.COLDFLAME.KEY] = {

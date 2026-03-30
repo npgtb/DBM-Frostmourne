@@ -66,11 +66,7 @@ mod.TIMINGS = {
 --Define the model behavior
 mod.BEHAVIOR = {
 	[mod.SPELLS.BERSERK.KEY] = {
-		TIMER = {
-			DEFAULT = {
-				TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
-			}
-		}
+		TIMER = {DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}}
 	},
 	[mod.SPELLS.FLAME_WREATH_CAST.KEY] = {
 		CAST_WARN = {

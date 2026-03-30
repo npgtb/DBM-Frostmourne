@@ -208,7 +208,7 @@ local function NormalizeArgumentation(event, ...)
 end
 
 --Appends handlers to the boss mod for possible internal events
-local function AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, trigger_data, spell_id, difficulty, engine, utility)
+local function RegisterInternalDispatchers(boss_mod, trigger_name, encounter_spells, trigger_data, spell_id, difficulty, engine, utility)
 	--Special case manual cast monitor
 	if trigger_name == "MANUAL_CAST_MONITOR" and encounter_spells ~= nil then
 		--Store the spell
@@ -233,7 +233,7 @@ local function AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, 
 end
 
 --Appends handlers for the Combatlog events coming from DBM
-local function AppendExternalHandlers(boss_mod, trigger_name, internal_events, engine)
+local function RegisterExternalDispatchers(boss_mod, trigger_name, internal_events, engine)
 	local internal_event_lookup = internal_events[trigger_name]
 	--If internal event not blocked and boss mod doesnt have existing handle
 	if boss_mod[trigger_name] == nil and internal_event_lookup ~= false then
@@ -246,13 +246,54 @@ local function AppendExternalHandlers(boss_mod, trigger_name, internal_events, e
 	end
 end
 
+--Injects getters for dbm objects
+local function InjectDBMAccessors(spell_behavior, spell_id, difficulty, boss_mod)
+	--Getter for warning DBM
+	spell_behavior.GetWarning = function()
+		local warning = spell_behavior.WARNING
+		if warning ~= nil then
+			return warning.DBM
+		end
+	end
+	--Getter for timer DBM
+	spell_behavior.GetTimer = function()
+		local timer = spell_behavior.TIMER
+		if timer ~= nil then
+			return timer.DBM
+		end
+	end
+	--Show warning functionality
+	spell_behavior.Show = function(...)
+		local warning = spell_behavior.GetWarning()
+		if warning then
+			warning:Show(...)
+		end
+	end
+	--Start timer functionality
+	spell_behavior.Start = function(...)
+		local timer = spell_behavior.GetTimer()
+		if timer then
+			timer:Start(...)
+		end
+	end
+	--Stop timer functionality
+	spell_behavior.Stop = function(...)
+		local timer = spell_behavior.GetTimer()
+		if timer then
+			timer:Stop(...)
+		end
+	end
+end
+
 --Append handler functions to the dbm mod
-local function AppendHandlers(spell_behavior, spell_id, difficulty, boss_mod)
+local function RegisterBehaviorDispatchers(spell_behavior, spell_id, difficulty, boss_mod)
 	local engine = DBM_BEHAVIOR
 	local utility = DBM_KFU
 	local handle_categories = engine.HANDLE_CATEGORIES
 	local internal_events = engine.INTERNAL_EVENTS
 	local encounter_spells = boss_mod.SPELLS
+	--Inject getters
+	InjectDBMAccessors(spell_behavior, spell_id, difficulty, boss_mod)
 	--Run trough each handle containing category
 	for _, category_name in ipairs(handle_categories) do
 		local category = spell_behavior[category_name]
@@ -260,9 +301,9 @@ local function AppendHandlers(spell_behavior, spell_id, difficulty, boss_mod)
 			--If we have the handle category in data, go trough it
 			for trigger_name, trigger_data in pairs(category) do
 				--Deal with combatlog events coming from dbm
-				AppendExternalHandlers(boss_mod, trigger_name, internal_events, engine)
+				RegisterExternalDispatchers(boss_mod, trigger_name, internal_events, engine)
 				--Deal with ON_SCAN and MANUAL_CAST_MONITOR
-				AppendInternalHandlers(boss_mod, trigger_name, encounter_spells, trigger_data, spell_id, difficulty, engine, utility)
+				RegisterInternalDispatchers(boss_mod, trigger_name, encounter_spells, trigger_data, spell_id, difficulty, engine, utility)
 			end
 		end
 	end
@@ -362,8 +403,8 @@ local function CreateBehavior(dbm_details, spell_id, difficulty, boss_mod)
 		TryCreateDbmWarning(dbm_details, spell_id, difficulty, boss_mod)
 		--Create timers
 		TryCreateDbmTimer(dbm_details, spell_id, difficulty, boss_mod)
-		--Append default behaviors
-		AppendHandlers(dbm_details, spell_id, difficulty, boss_mod)
+		--Append handlers to the mod
+		RegisterBehaviorDispatchers(dbm_details, spell_id, difficulty, boss_mod)
 	end
 end
 
@@ -388,21 +429,32 @@ end
 
 --Expand the DEFAULT behavior per missing difficulty level
 local function ExpandDefaultBehavior(missing_behaviors, spell_behavior, boss_mod, spell_key)
-	local default_behavior = spell_behavior["DEFAULT"]
+	local default_behavior = spell_behavior.DEFAULT
 	--We need a default behavior to expand
 	if default_behavior == nil then
 		return
 	end
+
 	local utility = DBM_KFU
-	--Loop trough the missing difficulties
+	local default_is_referenced = false
+	local default_sid = utility.SpellKeyToId(boss_mod.SPELLS, spell_key)
+	--Strat being to link to the default behavior, rather than creation
 	for missing_diff, _ in pairs(missing_behaviors) do
-		--We need to append new table for the default/diff combo
-		local diff_default_key = missing_diff
-		spell_behavior[diff_default_key] = utility.CopyTable(default_behavior)
 		--Solve the spell id for this difficulty
 		local spell_id = utility.SpellKeyToId(boss_mod.SPELLS, spell_key, missing_diff)
-		--Create the DBM objects
-		CreateBehavior(spell_behavior[diff_default_key], spell_id, missing_diff, boss_mod)
+		if spell_id ~= default_sid then
+			--Spell id and DBM are tied to together. We need new table to accomidate that
+			spell_behavior[missing_diff] = utility.CopyTable(default_behavior)
+			CreateBehavior(spell_behavior[missing_diff], spell_id, missing_diff, boss_mod)
+		else
+			--Link it to the default behavior
+			default_is_referenced = true
+			spell_behavior[missing_diff] = default_behavior
+		end
+	end
+	--Did someone link to default behavior?
+	if default_is_referenced then
+		CreateBehavior(default_behavior, default_sid, "DEFAULT", boss_mod)
 	end
 end
 

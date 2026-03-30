@@ -77,13 +77,9 @@ mod.TIMINGS = {
 
 --Define the model behavior
 mod.BEHAVIOR = {
-	[mod.SPELLS.BERSERK.KEY] = {
-		TIMER = {
-			DEFAULT = {
-				TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
-			}
-		}
-	},
+	[mod.SPELLS.BERSERK.KEY] = {TIMER = {DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}}},
+	[mod.SPELLS.TAILSWEEP.KEY] = {CD = {DEFAULT = {TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_CAST_SUCCESS = {}}}}},
+	[mod.SPELLS.FROSTBOLT_VOLLEY.KEY] = {CD = {DEFAULT = {TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {PHASE_START_3 = {}, SPELL_CAST_SUCCESS = {}}}}},
 	[mod.SPELLS.DEADEN.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
@@ -99,20 +95,6 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningTaunt"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.NotOnSelfAndIsTank, inject = "destName"}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "tauntboss", condition = DBM_BEHAVIOR.NotOnSelfAndIsTank}}
-			}
-		}
-	},
-	[mod.SPELLS.TAILSWEEP.KEY] = {
-		CD = {
-			DEFAULT = {
-				TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_CAST_SUCCESS = {}}
-			}
-		}
-	},
-	[mod.SPELLS.FROSTBOLT_VOLLEY.KEY] = {
-		CD = {
-			DEFAULT = {
-				TIMER = {type = "NewCDTimer"}, TIMER_STARTS = {PHASE_START_3 = {}, SPELL_CAST_SUCCESS = {}}
 			}
 		}
 	},

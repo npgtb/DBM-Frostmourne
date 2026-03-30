@@ -70,7 +70,10 @@ mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {DEFAULT = 15},
 	[mod.SPELLS.PERMAFROST.KEY] = {DEFAULT = 30, ON_COMBAT_START = 20},
 	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {DEFAULT = 12},
-	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {ADD_TIMER = {DEFAULT = 75, ON_COMBAT_START = 50}}
+	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
+		WATER_ELEMENTAL_TIMER = {DEFAULT = 75, ON_COMBAT_START = 50},
+		DEATH_ELEMENTAL_TIMER = {DEFALT = 65, ON_COMBAT_START = 40}
+	}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -82,19 +85,10 @@ mod.TIMINGS = {
 --Define the model behavior
 mod.BEHAVIOR = {
 	[mod.SPELLS.BERSERK.KEY] = {
-		TIMER = {
-			DEFAULT = {
-				TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}
-			}
-		}
+		TIMER = {DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}}
 	},
 	[mod.SPELLS.BLIGHT_SMALL.KEY] = {
-		APPLIED_WARN = {
-			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"},
-				WARNING_SHOW = {SPELL_AURA_APPLIED = {}}
-			}
-		}
+		APPLIED_WARN = {DEFAULT = {WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease"}, WARNING_SHOW = {SPELL_AURA_APPLIED = {}}}}
 	},
 	[mod.SPELLS.BLIGHT_BIG.KEY] = {
 		APPLIED_WARN = {
@@ -183,7 +177,7 @@ mod.BEHAVIOR = {
 		}
 	},
 	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
-		ADD_TIMER = {
+		WATER_ELEMENTAL_TIMER = {
 			DEFAULT = {
 				TIMER = {
 					type = "NewCDTimer", spell_id = 31687
@@ -194,6 +188,22 @@ mod.BEHAVIOR = {
 						entity = "Water Elemental",
 						condition = function(boss_mod, args, spell_id, update_subtype) 
 							return args.entity ~= nil and args.entity == "Water Elemental"
+						end
+					}
+				}
+			}
+		},
+		DEATH_ELEMENTAL_TIMER = {
+			DEFAULT = {
+				TIMER = {
+					type = "NewCDTimer", spell_id = 697, text = "Death Elemental"
+				},
+				TIMER_STARTS = {
+					ON_COMBAT_START = {inject = "offset"}, 
+					MANUAL_NEW_ENTITY = {
+						entity = "Death Elemental",
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.entity ~= nil and args.entity == "Death Elemental"
 						end
 					}
 				}
