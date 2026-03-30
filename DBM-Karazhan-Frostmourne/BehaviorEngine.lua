@@ -52,16 +52,16 @@ DBM_BEHAVIOR.WARNING_CREATION_ARG_ORDER = {
 }
 DBM_BEHAVIOR.WARNING_DEFAULT_PARAMS = {
     NewSpecialWarningDispel = { spell_id = "", filter = "RemoveDisease", option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
-    NewSpecialWarningGTFO = { spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 8 },
-    NewSpecialWarningYou = { spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
-    NewSpecialWarningStack = { spell_id = "", filter = false, stacks = 1, option_name = false, option_version = false, run_sound = 1, has_voice = 6 },
-	NewSpecialWarningLookAway = { spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+    NewSpecialWarningGTFO = { spell_id = "", filter = true, option_name = false, option_version = false, run_sound = 1, has_voice = 8 },
+    NewSpecialWarningYou = { spell_id = "", filter = true, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+    NewSpecialWarningStack = { spell_id = "", filter = true, stacks = 1, option_name = false, option_version = false, run_sound = 1, has_voice = 6 },
+	NewSpecialWarningLookAway = { spell_id = "", filter = true, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
 	NewSpecialWarningInterruptCount = { spell_id = "", filter = "HasInterrupt", option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
-	NewSpecialWarningMove = { spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
-	NewSpecialWarning = { text = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
-    NewSpellAnnounce = { spell_id = "", color = 3, icon = false, filter = ""},
+	NewSpecialWarningMove = { spell_id = "", filter = true, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+	NewSpecialWarning = { text = "", filter = true, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
+    NewSpellAnnounce = { spell_id = "", color = 3, icon = true, filter = ""},
 	NewCastAnnounce = { spell_id = "", color = 3},
-	NewSpecialWarningDefensive = {spell_id = "", filter = false, option_name = false, option_version = false, run_sound = 1, has_voice = 2},
+	NewSpecialWarningDefensive = {spell_id = "", filter = true, option_name = false, option_version = false, run_sound = 1, has_voice = 2},
 	NewSpecialWarningTaunt = {spell_id = "", filter = "Tank", option_name = false, option_version = false, run_sound = 1, has_voice = 2}
 }
 
@@ -79,9 +79,9 @@ DBM_BEHAVIOR.TIMER_CREATION_ARG_ORDER = {
 	"requires_combat", "is_priority"
 }
 DBM_BEHAVIOR.TIMER_DEFAULT_PARAMS = {
-    NewCDTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = false, option_name = false, color_type = 2, texture = false, icon = false},
+    NewCDTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = true, option_name = false, color_type = 2, texture = false, icon = false},
 	NewBerserkTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED},
-	NewCastTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = false, option_name = false, color_type = 3, texture = false, icon = false}
+	NewCastTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = true, option_name = false, color_type = 3, texture = false, icon = false}
 }
 
 DBM_BEHAVIOR.HANDLE_CATEGORIES = {"TIMER_STARTS", "SCAN_TRIGGER", "WARNING_SHOW", "PLAY_SOUND"}

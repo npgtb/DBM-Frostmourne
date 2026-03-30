@@ -9,8 +9,13 @@ mod:RegisterCombat("combat")
 --Spell ids of the counter
 mod.SPELLS = {
 	BERSERK = {KEY = "BERSERK", NAME = "Berserk", ID = {DEFAULT = 26662}},
-	DEEP_FREEZE = {KEY = "DEEP_FREEZE", NAME = "Deep Freeze", ID = {DEFAULT = 72930}},
-	FRENZY = {KEY = "FRENZY", NAME = "Frenzy", ID = {DEFAULT = 12795}}
+	DEEP_FREEZE = {KEY = "DEEP_FREEZE", NAME = "Deep Freeze", ID = {
+			DEFAULT = 72930,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 70381
+		}
+	},
+	FRENZY = {KEY = "FRENZY", NAME = "Frenzy", ID = {DEFAULT = 12795}},
+	PERMAFROST = {KEY = "PERMAFROST", NAME = "Permafrost", ID = {DEFAULT = 9250065}}
 }
 
 --We transition based on his health %
@@ -30,11 +35,15 @@ mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
 	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 30}
 }
+mod.TIMINGS_HEROIC_PHASE_DEFAULT = {
+	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
+	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 15}
+}
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
-	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
-	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = { PHASE_DEFAULT = mod.TIMINGS_HEROIC_PHASE_DEFAULT },
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = { PHASE_DEFAULT = mod.TIMINGS_HEROIC_PHASE_DEFAULT },
 }
 
 --Define the model behavior
@@ -62,7 +71,31 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "defensive", condition = DBM_BEHAVIOR.IsTank}}
 			}
 		}
+	},
+	[mod.SPELLS.PERMAFROST.KEY] = {
+		APPLIED_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningStack", stacks = 4, option_name = "Permafrost stack warning"},
+				WARNING_SHOW = {
+					SPELL_AURA_APPLIED_DOSE = {
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						end,
+						inject = "amount"
+					}
+				},
+				PLAY_SOUND = {
+					SPELL_AURA_APPLIED_DOSE = {
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						end,
+						sound = "stackhigh"
+					}
+				},
+			}
+		}
 	}
+
 }
 local boss_unit_id = "boss1"
 
