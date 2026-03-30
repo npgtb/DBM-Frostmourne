@@ -33,7 +33,12 @@ mod.SPELLS = {
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 70825,
 		}
 	},
-	COLDFLAME_SUMMON = {KEY = "COLDFLAME_SUMMON", NAME = "Coldflame", ID = {DEFAULT = 69138}}
+	COLDFLAME_SUMMON = {KEY = "COLDFLAME_SUMMON", NAME = "Coldflame", ID = {DEFAULT = 69138}},
+	CURATED_SUFFERING = {KEY = "CURATED_SUFFERING", NAME = "Curated Suffering", ID = {
+			DEFAULT = 9250055,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250055
+		}
+	}
 }
 
 --We transition based on his health %
@@ -112,11 +117,11 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.MORTAL_WOUND.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningStack", stacks = 4, option_name = "Mortal Found stack warning"},
+				WARNING = {type = "NewSpecialWarningStack", stacks = 5, option_name = "Mortal Found stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						condition = function(boss_mod, args, spell_id, update_subtype)
+							return args.amount > 5 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
 						end,
 						inject = "amount"
 					}
@@ -124,11 +129,33 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+							return args.amount > 5 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
 						end,
 						sound = "stackhigh"
 					}
 				},
+			}
+		},
+		TAUNT_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningTaunt", option_name = "Mortal Found taunt warning"},
+				WARNING_SHOW = {
+					SPELL_AURA_APPLIED_DOSE = {
+						condition = function(boss_mod, args, spell_id, update_subtype)
+							print(args.amount, DBM_BEHAVIOR.OnSelf(boss_mod, args), DBM_BEHAVIOR.IsTank(boss_mod, args))
+							return args.amount > 5 and not DBM_BEHAVIOR.OnSelf(boss_mod, args) and DBM_BEHAVIOR.IsTank(boss_mod, args)
+						end,
+						inject = "destName"
+					}
+				},
+				PLAY_SOUND = {
+					SPELL_AURA_APPLIED_DOSE = {
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.amount > 5 and not DBM_BEHAVIOR.OnSelf(boss_mod, args) and DBM_BEHAVIOR.IsTank(boss_mod, args)
+						end,
+						sound = "tauntboss"
+					}
+				}
 			}
 		}
 	},
