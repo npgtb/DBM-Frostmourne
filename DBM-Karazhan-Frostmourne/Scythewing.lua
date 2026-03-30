@@ -7,11 +7,46 @@ mod:SetEncounterID(924)
 mod:RegisterCombat("combat")
 
 mod.MAX_PHASES = 4
+mod.vb.kick_group_count = 3
+mod.vb.current_kick_group = 0
+
+--Solves the current kick group
+function mod.SolveKickGroup()
+	--Solve the current kick group number
+	mod.vb.current_kick_group = mod.vb.current_kick_group + 1
+	if mod.vb.current_kick_group > mod.vb.kick_group_count then
+		mod.vb.current_kick_group = 1
+	end
+	return mod.vb.current_kick_group
+end
+
+--Shows a warning for the kick groups to kick
+function mod.WarnToKick(boss_mod, trigger_data, warning, args)
+	--Warn the current kick group to kick the caster
+	if boss_mod.player_can_kick then
+		warning:Show(args.sourceName, boss_mod.SolveKickGroup())
+	end
+end
+
+--Plays a warning for the kick group to kick
+function mod.PlayToKick(boss_mod, trigger_data, warning, args)
+	--Execute order Warning => Play. We only play sound here
+	if boss_mod.player_can_kick then
+		local base_sound = trigger_data.sound or "kick"
+		local kick_audio_string = base_sound .. boss_mod.vb.current_kick_group .. "r"
+		warning:Play(kick_audio_string)
+	end
+end
 
 --Spell ids of the counter
 mod.SPELLS = {
 	BERSERK = {KEY = "BERSERK", NAME = "Berserk", ID = {DEFAULT = 26662}},
-	DEADEN = {KEY = "DEADEN", NAME = "Deaden", ID = {DEFAULT = 41410}},
+	DEADEN = {KEY = "DEADEN", NAME = "Deaden", ID = {
+			DEFAULT = 41410,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250068,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250068
+		}
+	},
 	BLISTERING_COLD = {KEY = "BLISTERING_COLD", NAME = "Blistering Cold", ID = {
 			DEFAULT = 71047, 
 			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 70123,
@@ -36,7 +71,8 @@ mod.SPELLS = {
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 72908
 		}
 	},
-	CONSUMPTION = {KEY = "CONSUMPTION", NAME = "Consumption", ID = {DEFAULT = 28865}}
+	CONSUMPTION = {KEY = "CONSUMPTION", NAME = "Consumption", ID = {DEFAULT = 28865}},
+	SHADOW_BOLT = {KEY = "SHADOW_BOLT", NAME = "Shadow Bolt", ID = {DEFAULT = 9250074}}
 }
 
 --We transition based on his health %
@@ -131,6 +167,15 @@ mod.BEHAVIOR = {
 			}
 		}
 	},
+	[mod.SPELLS.SHADOW_BOLT.KEY] = {
+		CAST_WARN = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningInterruptCount", filter = "HasInterrupt", option_name = "Kick Shadow Bolt warning"},
+				WARNING_SHOW = {SPELL_CAST_START = {override = mod.WarnToKick}},
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "kick", override = mod.PlayToKick}}
+			},
+		}
+	}
 }
 
 local boss_unit_id = "boss1"
