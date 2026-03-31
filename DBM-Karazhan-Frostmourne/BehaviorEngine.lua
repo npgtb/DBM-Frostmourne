@@ -49,7 +49,8 @@ DBM_BEHAVIOR.WARNING_TYPE = {
 	NewSpellAnnounce = "NewSpellAnnounce",
 	NewSpecialWarningDefensive = "NewSpecialWarningDefensive",
 	NewCastAnnounce = "NewCastAnnounce",
-	NewSpecialWarningTaunt = "NewSpecialWarningTaunt"
+	NewSpecialWarningTaunt = "NewSpecialWarningTaunt",
+	NewSpecialWarningAdds = "NewSpecialWarningAdds"
 }
 
 --Define some warning default parameters for the behavior system
@@ -70,7 +71,8 @@ DBM_BEHAVIOR.WARNING_DEFAULT_PARAMS = {
     NewSpellAnnounce = { spell_id = "", color = 3, icon = true, filter = ""},
 	NewCastAnnounce = { spell_id = "", color = 3},
 	NewSpecialWarningDefensive = {spell_id = "", filter = true, option_name = false, option_version = false, run_sound = 1, has_voice = 2},
-	NewSpecialWarningTaunt = {spell_id = "", filter = "Tank", option_name = false, option_version = false, run_sound = 1, has_voice = 2}
+	NewSpecialWarningTaunt = {spell_id = "", filter = "Tank", option_name = false, option_version = false, run_sound = 1, has_voice = 2},
+    NewSpecialWarningAdds = { spell_id = "", filter = true, option_name = false, option_version = false, run_sound = 1, has_voice = 2 },
 }
 
 --Define timer types for the behavior system

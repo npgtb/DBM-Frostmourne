@@ -17,16 +17,16 @@ mod.SPELLS = {
     PRESENCE_OF_FROST = {KEY = "PRESENCE_OF_FROST", NAME = "Presence of Frost", ID = {DEFAULT = 9250005}},
     PRESENCE_OF_SHADOW = {KEY = "PRESENCE_OF_SHADOW", NAME = "Presence of Shadow", ID = {DEFAULT = 9250004}},
     CHILL = {KEY = "CHILL", NAME = "Chill", ID = {DEFAULT = 55699, [DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] =  28547}},
-    BLIGHT_SMALL = {
-		KEY = "BLIGHT_SMALL", NAME = "Blight", ID = {
+    BLIGHT = {
+		KEY = "BLIGHT", NAME = "Blight", ID = {
 			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 9250041,
 			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = 9250042,
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250043,
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = 9250044
 		}
 	},
-    BLIGHT_BIG = {
-		KEY = "BLIGHT_BIG", NAME = "Blight", ID = {
+    EMPOWERED_BLIGHT = {
+		KEY = "EMPOWERED_BLIGHT", NAME = "Empowered Blight", ID = {
 			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 9250045,
 			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = 9250046,
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250047,
@@ -73,14 +73,14 @@ mod.TIMINGS_PHASE_DEFAULT = {
 	},
 	[mod.SPELLS.PERMAFROST.KEY] = {DEFAULT = 30, ON_COMBAT_START = 20},
 	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {DEFAULT = 12},
-	[mod.SPELLS.BLIGHT_SMALL.KEY] = {
+	[mod.SPELLS.BLIGHT.KEY] = {
 		CURE_TIMER = {
 			DEFAULT = 20
 		}
 	},
 	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
-		WATER_ELEMENTAL_TIMER = {DEFAULT = 75, ON_COMBAT_START = 50},
-		DEATH_ELEMENTAL_TIMER = {DEFAULT = 65, ON_COMBAT_START = 40}
+		WATER_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 50},
+		DEATH_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 40}
 	}
 }
 mod.TIMINGS = {
@@ -95,7 +95,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.BERSERK.KEY] = {
 		TIMER = {DEFAULT = {TIMER = {type = "NewBerserkTimer"}, TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}}}}
 	},
-	[mod.SPELLS.BLIGHT_SMALL.KEY] = {
+	[mod.SPELLS.BLIGHT.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Small Blight cure warning"}, 
@@ -120,7 +120,7 @@ mod.BEHAVIOR = {
 			}
 		}
 	},
-	[mod.SPELLS.BLIGHT_BIG.KEY] = {
+	[mod.SPELLS.EMPOWERED_BLIGHT.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Big Blight cure warning"},
@@ -226,6 +226,28 @@ mod.BEHAVIOR = {
 	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
 		WATER_ELEMENTAL_TIMER = {
 			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningAdds", spell_id = 31687, option_name = "Warn Water Elementals spawn"},
+				WARNING_SHOW = {
+					MANUAL_NEW_ENTITY = {
+						entity = "Water Elemental",
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.entity ~= nil and
+							       args.entity == "Water Elemental" and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+						end
+					}
+				},
+				PLAY_SOUND = {
+					MANUAL_NEW_ENTITY = {
+						entity = "Water Elemental",
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.entity ~= nil and
+							       args.entity == "Water Elemental" and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+						end,
+						sound = "killmob"
+					}
+				},
 				TIMER = {
 					type = "NewCDTimer", spell_id = 31687, option_name = "Summon Water Elemental cooldown"
 				},
@@ -234,7 +256,9 @@ mod.BEHAVIOR = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Water Elemental",
 						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return args.entity ~= nil and args.entity == "Water Elemental"
+							return args.entity ~= nil and
+							       args.entity == "Water Elemental" and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
 						end
 					}
 				}
@@ -242,6 +266,30 @@ mod.BEHAVIOR = {
 		},
 		DEATH_ELEMENTAL_TIMER = {
 			DEFAULT = {
+				WARNING = {type = "NewSpecialWarningAdds", spell_id = 697, option_name = "Warn Death Elemental spawn"},
+				WARNING_SHOW = {
+					MANUAL_NEW_ENTITY = {
+						entity = "Death Elemental",
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.entity ~= nil and
+							       args.entity == "Death Elemental" and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+						end
+					}
+				},
+				PLAY_SOUND = {
+					MANUAL_NEW_ENTITY = {
+						entity = "Death Elemental",
+						condition = function(boss_mod, args, spell_id, update_subtype) 
+							return args.entity ~= nil and
+							       args.entity == "Death Elemental" and
+								   DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype) and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+						end,
+						sound = "mobout"
+					}
+				},
+
 				TIMER = {
 					type = "NewCDTimer", spell_id = 697, text = "Death Elemental", option_name = "Summon Death Elemental cooldown"
 				},

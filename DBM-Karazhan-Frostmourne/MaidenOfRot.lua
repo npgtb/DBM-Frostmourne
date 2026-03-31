@@ -68,7 +68,7 @@ mod.BEHAVIOR = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDefensive", option_name = "Frenzy warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
-				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "defensive", condition = DBM_BEHAVIOR.IsTank}}
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "frenzy", condition = DBM_BEHAVIOR.IsTank}}
 			}
 		}
 	},
