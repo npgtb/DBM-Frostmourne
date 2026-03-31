@@ -15,6 +15,14 @@ DBM_BEHAVIOR.DIFFICULTY = {
 	HEROIC_25 = "heroic25"
 }
 
+--Possible difficulties pretty print format
+DBM_BEHAVIOR.DIFFICULTY_PRETTY_PRINT = {
+	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = "Normal 10",
+	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = "Normal 25",
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = "Heroic 10",
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = "Heroic 25"
+}
+
 --Support boss phases upto 9
 DBM_BEHAVIOR.PHASES = {
 	PHASE_ONE = 1,	
@@ -144,6 +152,17 @@ local function MakeBehaviourArgs(event, behavior_table, default_parameters, arg_
 	return args
 end
 
+local function KeyOptionWithDifficulty(spell_behavior, difficulty)
+	--If DEFAULT is created, there is only one instance of the spell
+	if difficulty ~= "DEFAULT" and spell_behavior then
+		local option_name = spell_behavior.option_name
+		local difficulty_key = " (" .. DBM_BEHAVIOR.DIFFICULTY_PRETTY_PRINT[difficulty] .. ")"
+		if option_name then
+			spell_behavior.option_name = option_name .. difficulty_key
+		end
+	end
+end
+
 --Tries to create a warning based on the given behavior table
 local function TryCreateDbmWarning(spell_behavior, spell_id, difficulty, boss_mod)
 	local engine = DBM_BEHAVIOR
@@ -155,6 +174,7 @@ local function TryCreateDbmWarning(spell_behavior, spell_id, difficulty, boss_mo
 		--Check type and methods existence ([nil]==nil)
 		if method ~= nil then
 			--Create the warning args, set the spell_id override
+			KeyOptionWithDifficulty(warning, difficulty)
 			warning.spell_id = warning.spell_id or spell_id
 			local creation_args = MakeBehaviourArgs(
 				warning_type, warning, 
@@ -177,6 +197,7 @@ local function TryCreateDbmTimer(spell_behavior, spell_id, difficulty, boss_mod)
 		--Check type and methods existence ([nil]==nil)
 		if method ~= nil then
 			--Create the timer args, set the spell_id override
+			KeyOptionWithDifficulty(timer, difficulty)
 			timer.spell_id = timer.spell_id or spell_id
 			local creation_args = MakeBehaviourArgs(
 				timer_type, timer, 
