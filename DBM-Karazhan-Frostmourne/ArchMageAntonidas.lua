@@ -70,12 +70,20 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 --Timing tables
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
-	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {DEFAULT = 15},
+	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {
+		DEFAULT = 40,
+		DECURSE_TIMER = {DEFAULT = 10}
+	},
 	[mod.SPELLS.PERMAFROST.KEY] = {DEFAULT = 30, ON_COMBAT_START = 20},
 	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {DEFAULT = 12},
+	[mod.SPELLS.BLIGHT_SMALL.KEY] = {
+		CURE_TIMER = {
+			DEFAULT = 20
+		}
+	},
 	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
 		WATER_ELEMENTAL_TIMER = {DEFAULT = 75, ON_COMBAT_START = 50},
-		DEATH_ELEMENTAL_TIMER = {DEFALT = 65, ON_COMBAT_START = 40}
+		DEATH_ELEMENTAL_TIMER = {DEFAULT = 65, ON_COMBAT_START = 40}
 	}
 }
 mod.TIMINGS = {
@@ -94,7 +102,25 @@ mod.BEHAVIOR = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Small Blight cure warning"}, 
-				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName"}}}
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {
+						inject = "destName",
+						condition = function(...) 
+							return DBM_BEHAVIOR.CanCleanseDisease(...) and DBM_BEHAVIOR.AntiSpam(...)
+						end,
+					}
+				}
+			}
+		},
+		CURE_TIMER  = {
+			DEFAULT = {
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Blight small cure timer"},
+				TIMER_STARTS = {SPELL_AURA_APPLIED = {
+						condition = function(...) 
+							return DBM_BEHAVIOR.CanCleanseDisease(...) and DBM_BEHAVIOR.AntiSpam(...)
+						end,
+					}
+				}
+			}
 		}
 	},
 	[mod.SPELLS.BLIGHT_BIG.KEY] = {
@@ -112,8 +138,25 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveCurse", option_name = "Curse of Doom decurse warning"},
 				TIMER = {type = "NewCDTimer", option_name = "Curse of Doom cooldown"},
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
-				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName"}},
-				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "helpdispel", condition = DBM_BEHAVIOR.CanDecurse}}
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName", condition = DBM_BEHAVIOR.AntiSpam}},
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {
+						sound = "helpdispel", 
+						condition = function(...) 
+							return DBM_BEHAVIOR.CanDecurse(...) and DBM_BEHAVIOR.AntiSpam(...)
+						end,
+					}
+				}
+			}
+		},
+		DECURSE_TIMER  = {
+			DEFAULT = {
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Curse of Doom decurse timer"},
+				TIMER_STARTS = {SPELL_AURA_APPLIED = {
+						condition = function(...) 
+							return DBM_BEHAVIOR.CanDecurse(...) and DBM_BEHAVIOR.AntiSpam(...)
+						end
+					}
+				}
 			}
 		}
 	},
@@ -209,7 +252,7 @@ mod.BEHAVIOR = {
 					ON_COMBAT_START = {inject = "offset"}, 
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype) 
+						condition = function(boss_mod, args, spell_id, update_subtype)
 							return args.entity ~= nil and args.entity == "Death Elemental"
 						end
 					}
@@ -235,9 +278,6 @@ function mod:OnCombatEnd(wipe)
 	DBM_BEHAVIOR.StopPhaseMonitor(mod)
 end
 
-function mod:INSTANCE_ENCOUNTER_ENGAGE_UNIT()
-    print("HERE WE GO")
-end
 
 --Initialize the model
 DBM_BEHAVIOR.CreateBossModel(mod)

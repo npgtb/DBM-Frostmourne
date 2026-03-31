@@ -77,7 +77,8 @@ DBM_BEHAVIOR.WARNING_DEFAULT_PARAMS = {
 DBM_BEHAVIOR.TIMER_TYPE = {
 	NewCDTimer = "NewCDTimer",
 	NewBerserkTimer = "NewBerserkTimer",
-	NewCastTimer = "NewCastTimer"
+	NewCastTimer = "NewCastTimer",
+	NewBuffFadesTimer = "NewBuffFadesTimer"
 }
 --Define some warning default parameters for the behavior system
 DBM_BEHAVIOR.TIMER_CREATION_ARG_ORDER = {
@@ -89,7 +90,8 @@ DBM_BEHAVIOR.TIMER_CREATION_ARG_ORDER = {
 DBM_BEHAVIOR.TIMER_DEFAULT_PARAMS = {
     NewCDTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = true, option_name = false, color_type = 2, texture = false, icon = false},
 	NewBerserkTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED},
-	NewCastTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = true, option_name = false, color_type = 3, texture = false, icon = false}
+	NewCastTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = true, option_name = false, color_type = 3, texture = false, icon = false},
+	NewBuffFadesTimer = {timing = DBM_BEHAVIOR.TIMER_DISABLED, spell_id = "", text = false, option_default = true, option_name = false, color_type = 2, texture = false, icon = false}
 }
 
 DBM_BEHAVIOR.HANDLE_CATEGORIES = {"TIMER_STARTS", "SCAN_TRIGGER", "WARNING_SHOW", "PLAY_SOUND"}
@@ -793,7 +795,7 @@ function DBM_BEHAVIOR.StartNewEntityMonitor(boss_mod)
 	local engine = DBM_BEHAVIOR
 	boss_mod.new_entity_monitor = utility.MonitorNewEntities(
 		boss_mod.creatureId, boss_mod.entity_monitor_entities,
-		function(entity_name) 
+		function(entity_name)
 			engine.HandleModelEvent("MANUAL_NEW_ENTITY", boss_mod, {entity = entity_name})
 		end
 	)

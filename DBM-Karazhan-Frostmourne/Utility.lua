@@ -276,7 +276,7 @@ local function FindAndMonitorEntities(entity_names, storage, callback_func)
 				end 
 			end
 		--If not found remove old entries
-		elseif found[plate] ~= nil then
+		else
 			found[plate] = nil
 		end
 	end
