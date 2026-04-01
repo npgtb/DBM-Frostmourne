@@ -43,13 +43,21 @@ mod.SPELLS = {
 	},
     AURA_OF_SUFFERING = {KEY = "AURA_OF_SUFFERING", NAME = "Aura of Suffering", ID = {DEFAULT = 41292}},
     FINGER_OF_DEATH = {KEY = "FINGER_OF_DEATH", NAME = "Finger of Death", ID = {DEFAULT = 31984}},
-	SPELL_DISRUPTION = {KEY = "SPELL_DISRUPTION", NAME = "Spell Disruption", ID = {DEFAULT = 29310}},
+	SPELL_DISRUPTION = {KEY = "SPELL_DISRUPTION", NAME = "Spell Disruption", ID = {
+			DEFAULT = 29310,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250070
+		}
+	},
 	PERMAFROST = {KEY = "PERMAFROST", NAME = "Permafrost", ID = {
 			DEFAULT = 67856,
 			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 9250062
 		}
 	},
-	SHROUD_OF_DARKNESS = {KEY = "SHROUD_OF_DARKNESS", NAME = "Shroud of Darkness", ID = {DEFAULT = 54525}}
+	SHROUD_OF_DARKNESS = {KEY = "SHROUD_OF_DARKNESS", NAME = "Shroud of Darkness", ID = {
+			DEFAULT = 54525,
+			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 9250077
+		}
+	}
 }
 
 --We transition based on his health %
@@ -97,7 +105,7 @@ mod.HEROIC_TIMINGS_PHASE_DEFAULT = {
 	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
 		WATER_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 50},
 		DEATH_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 40},
-		DEATH_ELEMENTAL_EXPLOSION = {DEFAULT = 14}
+		DEATH_ELEMENTAL_EXPLOSION = {DEFAULT = 10}
 	}
 }
 mod.TIMINGS = {
@@ -289,6 +297,7 @@ mod.BEHAVIOR = {
 		},
 		DEATH_ELEMENTAL_TIMER = {
 			DEFAULT = {
+				TIMER = {type = "NewCDTimer", spell_id = 697, text = "Death Elemental", option_name = "Summon Death Elemental cooldown"},
 				WARNING = {type = "NewSpecialWarningAdds", spell_id = 697, option_name = "Warn Death Elemental spawn"},
 				WARNING_SHOW = {
 					MANUAL_NEW_ENTITY = {
@@ -311,10 +320,6 @@ mod.BEHAVIOR = {
 						end,
 						sound = "mobout"
 					}
-				},
-
-				TIMER = {
-					type = "NewCDTimer", spell_id = 697, text = "Death Elemental", option_name = "Summon Death Elemental cooldown"
 				},
 				TIMER_STARTS = {
 					ON_COMBAT_START = {inject = "offset"}, 

@@ -7,7 +7,9 @@ mod:SetEncounterID(924)
 mod:RegisterCombat("combat")
 
 mod.MAX_PHASES = 4
-mod.vb.kick_group_count = 3
+
+mod:AddDropdownOption("KickGroupSize", {"1", "2", "3", "4", "5"}, "2", "misc", nil, nil)
+mod.vb.kick_group_count = 2
 mod.vb.current_kick_group = 0
 
 --Solves the current kick group
@@ -21,7 +23,7 @@ function mod.SolveKickGroup()
 end
 
 --Shows a warning for the kick groups to kick
-function mod.WarnToKick(boss_mod, trigger_data, timer, args, context)
+function mod.WarnToKick(boss_mod, trigger_data, warning, args, context)
 	--Warn the current kick group to kick the caster
 	if boss_mod.player_can_kick then
 		warning:Show(args.sourceName, boss_mod.SolveKickGroup())
@@ -29,7 +31,7 @@ function mod.WarnToKick(boss_mod, trigger_data, timer, args, context)
 end
 
 --Plays a warning for the kick group to kick
-function mod.PlayToKick(boss_mod, trigger_data, timer, args, context)
+function mod.PlayToKick(boss_mod, trigger_data, warning, args, context)
 	--Execute order Warning => Play. We only play sound here
 	if boss_mod.player_can_kick then
 		local base_sound = trigger_data.sound or "kick"
@@ -69,7 +71,8 @@ mod.SPELLS = {
 		}
 	},
 	CONSUMPTION = {KEY = "CONSUMPTION", NAME = "Consumption", ID = {DEFAULT = 28865}},
-	SHADOW_BOLT = {KEY = "SHADOW_BOLT", NAME = "Shadow Bolt", ID = {DEFAULT = 9250074}}
+	SHADOW_BOLT = {KEY = "SHADOW_BOLT", NAME = "Shadow Bolt", ID = {DEFAULT = 9250074}},
+	SCYTHEWINGS_WAIL = {KEY = "SCYTHEWINGS_WAIL", NAME = "Scythewing's Wail", ID = {DEFAULT = 9250057}}
 }
 
 --We transition based on his health %
@@ -172,12 +175,27 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "kick", override = mod.PlayToKick}}
 			},
 		}
-	}
+	},
+	[mod.SPELLS.SCYTHEWINGS_WAIL.KEY] = {
+		WARN_AURA = {
+			DEFAULT = {
+				WARNING = {type = "NewSpecialWarning", text = "Scythewing's Wail", option_name = "Scythewing's Wail warning"},
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
+				PLAY_SOUND = {
+					SPELL_AURA_APPLIED = {
+						sound = "enrage"
+					}
+				}
+			}
+		}
+	},
 }
 
 local boss_unit_id = "boss1"
 
 function mod:OnCombatStart(delay)
+	--Try read the kick group size setting
+	mod.vb.kick_group_count = tonumber(mod.Options.KickGroupSize) or mod.vb.kick_group_count
 	--Fetch difficulty from dbm
 	DBM_BEHAVIOR.CombatStartFetchData(mod)
 	DBM_BEHAVIOR.StartPhaseMonitor(mod, boss_unit_id)

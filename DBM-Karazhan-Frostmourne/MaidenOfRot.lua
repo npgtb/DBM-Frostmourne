@@ -34,11 +34,11 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 --Timing tables
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
-	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 30}
+	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 30, DEBUFF_TIMER = {DEFAULT = 20}}
 }
 mod.TIMINGS_HEROIC_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
-	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 15}
+	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 15, DEBUFF_TIMER = {DEFAULT = 14}}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -61,6 +61,18 @@ mod.BEHAVIOR = {
 				SCAN_TRIGGER = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {ON_SCAN = {}},
 				PLAY_SOUND = {ON_SCAN = {sound = "targetyou"}}
+			}
+		},
+		DEBUFF_TIMER = {
+			DEFAULT = {
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Deep Freeze debuff timer"},
+				TIMER_STARTS = {
+					SPELL_AURA_APPLIED = {
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context)
+						end
+					}
+				}
 			}
 		}
 	},

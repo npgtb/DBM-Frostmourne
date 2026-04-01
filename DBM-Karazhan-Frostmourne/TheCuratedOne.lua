@@ -205,8 +205,8 @@ mod.BEHAVIOR = {
 		TURN_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningLookAway", option_name = "Aura of Fear warning"},
-				WARNING_SHOW = {MANUAL_CAST_MONITOR = {condition = DBM_BEHAVIOR.AntiSpam}},
-				PLAY_SOUND = {MANUAL_CAST_MONITOR = {condition = DBM_BEHAVIOR.AntiSpam, sound = "turnaway"}}
+				WARNING_SHOW = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.AntiSpam}},
+				PLAY_SOUND = {SPELL_CAST_START = {condition = DBM_BEHAVIOR.AntiSpam, sound = "turnaway"}}
 			}
 		}
 	}
@@ -218,14 +218,12 @@ function mod:OnCombatStart(delay)
 	--Fetch difficulty from dbm
 	DBM_BEHAVIOR.CombatStartFetchData(mod)
 	DBM_BEHAVIOR.StartPhaseMonitor(mod, boss_unit_id)
-	DBM_BEHAVIOR.StartSpellCastingMonitor(mod)
 	DBM_BEHAVIOR.HandleModelEvent("ON_COMBAT_START", mod, {offset=-delay})
 end
 
 function mod:OnCombatEnd(wipe)
     --Stop the monitors
 	DBM_BEHAVIOR.StopPhaseMonitor(mod)
-	DBM_BEHAVIOR.StopSpellCastingMonitor(mod)
 end
 
 --Initialize the model
