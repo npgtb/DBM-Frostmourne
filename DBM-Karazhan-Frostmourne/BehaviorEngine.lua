@@ -259,11 +259,24 @@ end
 
 --Appends handlers for the Combatlog events coming from DBM
 local function RegisterExternalDispatchers(boss_mod, trigger_name, internal_events, engine)
-	local internal_event_lookup = internal_events[trigger_name]
+	local event_name = trigger_name
+	local internal_event_lookup = internal_events[event_name]
+	--Emote triggered event
+	local emote_events = {
+		CHAT_MSG_MONSTER_SAY = true,
+		CHAT_MSG_MONSTER_YELL = true,
+		CHAT_MSG_MONSTER_EMOTE = true,
+		CHAT_MSG_RAID_BOSS_EMOTE = true,
+		CHAT_MSG_RAID_BOSS_WHISPER = true
+	}
+	if boss_mod[event_name] == nil and emote_events[event_name] then
+		boss_mod[event_name] = function(self, msg, npc, _, _, target)
+			print(npc,msg)
+			DBM_BEHAVIOR.HandleModelEvent(event_name, self, {message = msg, sender = npc, target = target})
+		end
 	--If internal event not blocked and boss mod doesnt have existing handle
-	if boss_mod[trigger_name] == nil and internal_event_lookup ~= false then
+	elseif boss_mod[event_name] == nil and internal_event_lookup ~= false then
 		--Attach handlers to boss mod, capture trigger name as the events name
-		local event_name = trigger_name
 		boss_mod[event_name] = function(self, ...)
 			local args = NormalizeArgumentation(event_name, ...)
 			engine.HandleModelUpdate(args.spellId, event_name, self, args)
@@ -413,7 +426,9 @@ local function RegisterSpellEvents(boss_mod)
 	for event, spell_ids  in pairs(registration_needs) do
 		local unique_spell_ids = {}
 		for spell_id, _ in pairs(registration_needs[event]) do
-			table.insert(unique_spell_ids, spell_id)
+			if spell_id ~= DBM_BEHAVIOR.SPELL_UNKNOWN_ID then
+				table.insert(unique_spell_ids, spell_id)
+			end
 		end
 		table.insert(registration_strings, utility.EventString(event, unpack(unique_spell_ids)))
 	end

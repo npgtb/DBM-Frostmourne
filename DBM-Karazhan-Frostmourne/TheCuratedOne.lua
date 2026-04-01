@@ -11,7 +11,11 @@ mod.MAX_PHASES = 4
 --Spell ids of the counter
 mod.SPELLS = {
 	BERSERK = {KEY = "BERSERK", NAME = "Berserk", ID = {DEFAULT = 26662}},
-	CHAOS_BOLT = {KEY = "CHAOS_BOLT", NAME = "Chaos Bolt", ID = {DEFAULT = 51287}},
+	CHAOS_BOLT = {KEY = "CHAOS_BOLT", NAME = "Chaos Bolt", ID = {
+			DEFAULT = 51287,
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = 9250076
+		}
+	},
 	SOUL_FLAY = {KEY = "SOUL_FLAY", NAME = "Soul Flay", ID = {DEFAULT = 45442}},
 	FEAR = {KEY = "FEAR", NAME = "Fear", ID = {DEFAULT = 30530}},
 	AURA_OF_FEAR = {KEY = "AURA_OF_FEAR", NAME = "Aura of Fear", ID = {DEFAULT = 9250009}},
@@ -55,7 +59,7 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 --Timing tables
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
-	[mod.SPELLS.CHAOS_BOLT.KEY] = {DEFAULT = 4},
+	[mod.SPELLS.CHAOS_BOLT.KEY] = {DEFAULT = 4, ON_COMBAT_START = 3},
 	[mod.SPELLS.FEAR.KEY] = {DEFAULT = 25},
 	[mod.SPELLS.BLOOD_MIRROR.KEY] = {DEFAULT = 25},
 	[mod.SPELLS.DEATH_AND_DECAY.KEY] = {DEFAULT = 20},
@@ -119,7 +123,7 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype, context)
-							return args.amount > 5 and 
+							return args.amount > 7 and 
 							       DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
 						end,
 						inject = "amount"
@@ -128,7 +132,7 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return args.amount > 5 and 
+							return args.amount > 7 and 
 							       DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
 						end,
 						sound = "stackhigh"

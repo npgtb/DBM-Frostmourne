@@ -227,7 +227,14 @@ mod.BEHAVIOR = {
 		ADDS_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarning", text = "Kill the adds!", option_name = "Kill adds warning"},
-				WARNING_SHOW = {PHASE_START_2 = {}},
+				WARNING_SHOW = {
+					CHAT_MSG_MONSTER_SAY = { 
+						condition = function(boss_mod, args, spell_id, update_subtype, context)
+							local boss_say = "I'm not finished yet! No, I have a few more tricks up my sleeve..."
+							return args.message and args.message:find(boss_say)
+						end
+					}
+				},
 			}
 		}
 	},
@@ -269,3 +276,8 @@ end
 --Initialize the model
 DBM_BEHAVIOR.CreateBossModel(mod)
 DBM_BEHAVIOR.InitPhaseMonitor(mod, boss_unit_id, mod.MAX_PHASES)
+
+
+function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, npc, _, _, target)
+	
+end
