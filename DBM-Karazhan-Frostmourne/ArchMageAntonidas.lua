@@ -44,7 +44,11 @@ mod.SPELLS = {
     AURA_OF_SUFFERING = {KEY = "AURA_OF_SUFFERING", NAME = "Aura of Suffering", ID = {DEFAULT = 41292}},
     FINGER_OF_DEATH = {KEY = "FINGER_OF_DEATH", NAME = "Finger of Death", ID = {DEFAULT = 31984}},
 	SPELL_DISRUPTION = {KEY = "SPELL_DISRUPTION", NAME = "Spell Disruption", ID = {DEFAULT = 29310}},
-	PERMAFROST = {KEY = "PERMAFROST", NAME = "Permafrost", ID = {DEFAULT = 67856}},
+	PERMAFROST = {KEY = "PERMAFROST", NAME = "Permafrost", ID = {
+			DEFAULT = 67856,
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 9250062
+		}
+	},
 	SHROUD_OF_DARKNESS = {KEY = "SHROUD_OF_DARKNESS", NAME = "Shroud of Darkness", ID = {DEFAULT = 54525}}
 }
 
@@ -68,26 +72,39 @@ mod.PHASE_TRANSITION_THRESHOLDS = {
 mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
 	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {
-		DEFAULT = 40,
-		DECURSE_TIMER = {DEFAULT = 10}
+		DEFAULT = 40, DECURSE_TIMER = {DEFAULT = 12}
+	},
+	[mod.SPELLS.PERMAFROST.KEY] = {DEFAULT = 30, ON_COMBAT_START = 20},
+	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {DEFAULT = 12},
+	[mod.SPELLS.BLIGHT.KEY] = {CURE_TIMER = {DEFAULT = 20}},
+	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
+		WATER_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 50},
+		DEATH_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 40},
+		DEATH_ELEMENTAL_EXPLOSION = {DEFAULT = 14}
+	}
+}
+
+mod.HEROIC_TIMINGS_PHASE_DEFAULT = {
+	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
+	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {
+		DEFAULT = 40, DECURSE_TIMER = {DEFAULT = 10}
 	},
 	[mod.SPELLS.PERMAFROST.KEY] = {DEFAULT = 30, ON_COMBAT_START = 20},
 	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {DEFAULT = 12},
 	[mod.SPELLS.BLIGHT.KEY] = {
-		CURE_TIMER = {
-			DEFAULT = 20
-		}
+		CURE_TIMER = {DEFAULT = 20}
 	},
 	[DBM_BEHAVIOR.SPELL_UNKNOWN_KEY] = {
 		WATER_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 50},
-		DEATH_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 40}
+		DEATH_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 40},
+		DEATH_ELEMENTAL_EXPLOSION = {DEFAULT = 14}
 	}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
-	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
-	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = { PHASE_DEFAULT = mod.HEROIC_TIMINGS_PHASE_DEFAULT },
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = { PHASE_DEFAULT = mod.HEROIC_TIMINGS_PHASE_DEFAULT },
 }
 
 --Define the model behavior
@@ -98,11 +115,12 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.BLIGHT.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Small Blight cure warning"}, 
+				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Blight cure warning"}, 
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {
 						inject = "destName",
-						condition = function(...) 
-							return DBM_BEHAVIOR.CanCleanseDisease(...) and DBM_BEHAVIOR.AntiSpam(...)
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.CanCleanseDisease(boss_mod, args, spell_id, update_subtype, context) and 
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context)
 						end,
 					}
 				}
@@ -110,11 +128,12 @@ mod.BEHAVIOR = {
 		},
 		CURE_TIMER  = {
 			DEFAULT = {
-				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Blight small cure timer"},
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Blight cure timer"},
 				TIMER_STARTS = {SPELL_AURA_APPLIED = {
-						condition = function(...) 
-							return DBM_BEHAVIOR.CanCleanseDisease(...) and DBM_BEHAVIOR.AntiSpam(...)
-						end,
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.CanCleanseDisease(boss_mod, args, spell_id, update_subtype, context) and 
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context)
+						end
 					}
 				}
 			}
@@ -123,7 +142,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.EMPOWERED_BLIGHT.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Big Blight cure warning"},
+				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Empowered Blight cure warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName"}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow", condition = DBM_BEHAVIOR.CanCleanseDisease}}
 			}
@@ -137,9 +156,10 @@ mod.BEHAVIOR = {
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName", condition = DBM_BEHAVIOR.AntiSpam}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {
-						sound = "helpdispel", 
-						condition = function(...) 
-							return DBM_BEHAVIOR.CanDecurse(...) and DBM_BEHAVIOR.AntiSpam(...)
+						sound = "decurse", 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype, context) and
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 8)
 						end,
 					}
 				}
@@ -149,8 +169,9 @@ mod.BEHAVIOR = {
 			DEFAULT = {
 				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Curse of Doom decurse timer"},
 				TIMER_STARTS = {SPELL_AURA_APPLIED = {
-						condition = function(...) 
-							return DBM_BEHAVIOR.CanDecurse(...) and DBM_BEHAVIOR.AntiSpam(...)
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype, context) and
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 8)
 						end
 					}
 				}
@@ -206,16 +227,18 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningStack", stacks = 2, option_name = "Shroud of Darkness stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return args.amount > 2 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return args.amount > 2 and 
+							       DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
 						end,
 						inject = "amount"
 					}
 				},
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return args.amount > 2 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return args.amount > 2 and 
+							       DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
 						end,
 						sound = "stackhigh"
 					}
@@ -230,20 +253,20 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Water Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
 							return args.entity ~= nil and
 							       args.entity == "Water Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
 						end
 					}
 				},
 				PLAY_SOUND = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Water Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
 							return args.entity ~= nil and
 							       args.entity == "Water Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
 						end,
 						sound = "killmob"
 					}
@@ -255,10 +278,10 @@ mod.BEHAVIOR = {
 					ON_COMBAT_START = {inject = "offset"}, 
 					MANUAL_NEW_ENTITY = {
 						entity = "Water Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
 							return args.entity ~= nil and
 							       args.entity == "Water Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
 						end
 					}
 				}
@@ -270,21 +293,21 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
 							return args.entity ~= nil and
 							       args.entity == "Death Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
 						end
 					}
 				},
 				PLAY_SOUND = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
 							return args.entity ~= nil and
 							       args.entity == "Death Elemental" and
-								   DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype) and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+								   DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype, context) and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
 						end,
 						sound = "mobout"
 					}
@@ -297,8 +320,23 @@ mod.BEHAVIOR = {
 					ON_COMBAT_START = {inject = "offset"}, 
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype)
-							return args.entity ~= nil and args.entity == "Death Elemental"
+						condition = function(boss_mod, args, spell_id, update_subtype, context)
+							return args.entity ~= nil and args.entity == "Death Elemental" and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
+						end
+					}
+				}
+			}
+		},
+		DEATH_ELEMENTAL_EXPLOSION = {
+			DEFAULT = {
+				TIMER = {type = "NewCastTimer", spell_id = 9250064, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Death Elemental Explosion timer"},
+				TIMER_STARTS = {		
+					MANUAL_NEW_ENTITY = {
+						entity = "Death Elemental",
+						condition = function(boss_mod, args, spell_id, update_subtype, context)
+							return args.entity ~= nil and args.entity == "Death Elemental" and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
 						end
 					}
 				}

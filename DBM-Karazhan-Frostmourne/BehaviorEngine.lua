@@ -529,11 +529,11 @@ local function HandleTimerUpdate(spell_id, spell_mapping, behavior, event, boss_
 	if timer ~= nil and trigger_data ~= nil then
 		--Has a override func been defined
 		if trigger_data.override ~= nil then
-			trigger_data.override(boss_mod, trigger_data, timer, args)
+			trigger_data.override(boss_mod, trigger_data, timer, args, context)
 		--Accept the judgement of a condition func
 		elseif 
 			trigger_data.condition == nil or
-			trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.TIMER)
+			trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.TIMER, context)
 		then
 			local injection = args[trigger_data.inject] or 0
 			--Try starting the timer
@@ -547,7 +547,7 @@ local function HandleTimerUpdate(spell_id, spell_mapping, behavior, event, boss_
 end
 
 --Handle any triggering of warnings
-local function HandleWarningUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
+local function HandleWarningUpdate(spell_id, spell_mapping, behavior, event, boss_mod, context, args)
 	local warning_data = behavior.WARNING
 	local show_events = behavior.WARNING_SHOW
 	--Do we have warning data?
@@ -562,11 +562,11 @@ local function HandleWarningUpdate(spell_id, spell_mapping, behavior, event, bos
 	if warning ~= nil and trigger_data ~= nil then
 		--Has a override func been defined
 		if trigger_data.override ~= nil then
-			trigger_data.override(boss_mod, trigger_data, warning, args)
+			trigger_data.override(boss_mod, trigger_data, warning, args, context)
 		--Accept the judgement of a condition func
 		elseif 
 			trigger_data.condition == nil or
-			trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.WARNING)
+			trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.WARNING, context)
 		then
 			--Show warning
 			local injection = args[trigger_data.inject]
@@ -576,7 +576,7 @@ local function HandleWarningUpdate(spell_id, spell_mapping, behavior, event, bos
 end
 
 --Handle any triggering of sounds
-local function HandlePlayUpdate(spell_id, spell_mapping, behavior, event, boss_mod, args)
+local function HandlePlayUpdate(spell_id, spell_mapping, behavior, event, boss_mod, context, args)
 	local warning_data = behavior.WARNING
 	local play_events = behavior.PLAY_SOUND
 	--Do we have ability to play sound and event data
@@ -592,11 +592,11 @@ local function HandlePlayUpdate(spell_id, spell_mapping, behavior, event, boss_m
 		if sound_id ~= nil then
 			--Has a override func been defined
 			if trigger_data.override ~= nil then
-				trigger_data.override(boss_mod, trigger_data, warning, args)
+				trigger_data.override(boss_mod, trigger_data, warning, args, context)
 			--Accept the judgement of a condition func
 			elseif 
 				trigger_data.condition == nil or
-				trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.PLAY)
+				trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.PLAY, context)
 			then
 				--Play the warning
 				warning:Play(sound_id)
@@ -653,8 +653,8 @@ function DBM_BEHAVIOR.HandleModelUpdate(spell_id, event, boss_mod, args, spell_k
 		--Do we have a behavior defined for this spell?
 		if context_behavior ~= nil then
 			HandleTimerUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, context_name, args)
-			HandleWarningUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, args)
-			HandlePlayUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, args)
+			HandleWarningUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, context_name, args)
+			HandlePlayUpdate(spell_id, spell_mapping, context_behavior, event, boss_mod, context_name, args)
 			HandleScanTrigger(spell_id, spell_mapping, context_behavior, event, boss_mod, args)
 		end
 	end
@@ -846,85 +846,93 @@ function DBM_BEHAVIOR.CombatStartFetchData(boss_mod)
 	boss_mod.player_name = UnitName("player")
 	boss_mod.player_guid = UnitGUID("player")
 	boss_mod.player_can_kick = DBM_KFU.KnowsInteruptSpell()
-	boss_mod.player_can_dispell = DBM_KFU.CanCleanseType("magic")
+	boss_mod.player_can_dispel = DBM_KFU.CanCleanseType("magic")
 	boss_mod.player_can_decurse = DBM_KFU.CanCleanseType("curse")
 	boss_mod.player_can_cleanse_disease = DBM_KFU.CanCleanseType("disease")
 	boss_mod.player_can_cleanse_poison = DBM_KFU.CanCleanseType("poison")
 end
 
 --Common conditions, Are we a tank?
-function DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype, context)
 	return boss_mod:IsTank()
 end
 
 --Common conditions, Are we a healer?
-function DBM_BEHAVIOR.IsHealer(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.IsHealer(boss_mod, args, spell_id, update_subtype, context)
 	return boss_mod:IsHealer()
 end
 
 --Common conditions, Are we a dps?
-function DBM_BEHAVIOR.IsDps(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.IsDps(boss_mod, args, spell_id, update_subtype, context)
 	return boss_mod:IsDps()
 end
 
 --Common conditions, Can we kick?
-function DBM_BEHAVIOR.CanKick(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.CanKick(boss_mod, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_kick
 end
 
 --Common conditions, Can we dispell magic?
-function DBM_BEHAVIOR.CanDispell(boss_mod, args, spell_id, update_subtype)
-	return boss_mod.player_can_dispell
+function DBM_BEHAVIOR.CanDispel(boss_mod, args, spell_id, update_subtype, context)
+	return boss_mod.player_can_dispel
 end
 
 --Common conditions, Do we not have ability to dispell?
-function DBM_BEHAVIOR.CanNotDispell(boss_mod, args, spell_id, update_subtype)
-	return not boss_mod.player_can_dispell
+function DBM_BEHAVIOR.CanNotDispel(boss_mod, args, spell_id, update_subtype, context)
+	return not boss_mod.player_can_dispel
 end
 
 --Common conditions, Can we decurse?
-function DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_decurse
 end
 
 --Common conditions, Can we dispell magic?
-function DBM_BEHAVIOR.CanCleanseDisease(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.CanCleanseDisease(boss_mod, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_cleanse_disease
 end
 
 --Common conditions, Can we dispell magic?
-function DBM_BEHAVIOR.CanCleansePoison(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.CanCleansePoison(boss_mod, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_cleanse_poison
 end
 
 --Common conditions, Are we either the target or source of the spell (Spells that bind two player together)
-function DBM_BEHAVIOR.IsTargetOrDest(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.IsTargetOrDest(boss_mod, args, spell_id, update_subtype, context)
 	return args.destGUID == boss_mod.player_guid or args.sourceGUID == boss_mod.player_guid
 end
 
 --Common conditions, Something happening to us
-function DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context)
 	return args.destGUID == boss_mod.player_guid
 end
 
 --Common conditions, Something happening to us
-function DBM_BEHAVIOR.NotOnSelfAndIsTank(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.NotOnSelfAndIsTank(boss_mod, args, spell_id, update_subtype, context)
 	return args.destGUID ~= boss_mod.player_guid and boss_mod:IsTank()
 end
 
 --Common conditions, Something happening to us
-function DBM_BEHAVIOR.DestIsSelf(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.DestIsSelf(boss_mod, args, spell_id, update_subtype, context)
 	return args.destName == boss_mod.player_name
 end
 
 --Common conditions, DBM antispam
-function DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, duration)
 	--Key the antispam with combo of spell_id + subtype
-	return boss_mod:AntiSpam(nil, (spell_id + update_subtype))
+	local anti_spam_key = spell_id + update_subtype
+	if context then
+		anti_spam_key = context .. anti_spam_key
+	end
+	return boss_mod:AntiSpam(duration, anti_spam_key)
 end
 
 --Common conditions, Something happening to us and dbm antispam
-function DBM_BEHAVIOR.OnSelfAntiSpam(boss_mod, args, spell_id, update_subtype)
+function DBM_BEHAVIOR.OnSelfAntiSpam(boss_mod, args, spell_id, update_subtype, context, duration)
 	--Key the antispam with combo of spell_id + subtype
-	return args.destGUID == boss_mod.player_guid and boss_mod:AntiSpam(nil, (spell_id + update_subtype))
+	local anti_spam_key = spell_id + update_subtype
+	if context then
+		anti_spam_key = context .. anti_spam_key
+	end
+	return args.destGUID == boss_mod.player_guid and boss_mod:AntiSpam(duration, anti_spam_key)
 end

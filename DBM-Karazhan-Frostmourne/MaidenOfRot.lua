@@ -10,7 +10,8 @@ mod:RegisterCombat("combat")
 mod.SPELLS = {
 	BERSERK = {KEY = "BERSERK", NAME = "Berserk", ID = {DEFAULT = 26662}},
 	DEEP_FREEZE = {KEY = "DEEP_FREEZE", NAME = "Deep Freeze", ID = {
-			DEFAULT = 72930,
+			DEFAULT = 70380,
+			[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = 9250075,
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = 70381
 		}
 	},
@@ -66,9 +67,17 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FRENZY.KEY] = {
 		WARN_AURA = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDefensive", option_name = "Frenzy warning"},
+				WARNING = {type = "NewSpecialWarning", text = "Frenzy", option_name = "Frenzy warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
-				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "frenzy", condition = DBM_BEHAVIOR.IsTank}}
+				PLAY_SOUND = {
+					SPELL_AURA_APPLIED = {
+						sound = "frenzy", 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype, context) or
+								   DBM_BEHAVIOR.IsHealer(boss_mod, args, spell_id, update_subtype, context)
+						end,
+					}
+				}
 			}
 		}
 	},
@@ -78,16 +87,16 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningStack", stacks = 4, option_name = "Permafrost stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
 						end,
 						inject = "amount"
 					}
 				},
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args) 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
 						end,
 						sound = "stackhigh"
 					}

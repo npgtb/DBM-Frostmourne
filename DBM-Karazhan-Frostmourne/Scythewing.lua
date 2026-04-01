@@ -21,7 +21,7 @@ function mod.SolveKickGroup()
 end
 
 --Shows a warning for the kick groups to kick
-function mod.WarnToKick(boss_mod, trigger_data, warning, args)
+function mod.WarnToKick(boss_mod, trigger_data, timer, args, context)
 	--Warn the current kick group to kick the caster
 	if boss_mod.player_can_kick then
 		warning:Show(args.sourceName, boss_mod.SolveKickGroup())
@@ -29,7 +29,7 @@ function mod.WarnToKick(boss_mod, trigger_data, warning, args)
 end
 
 --Plays a warning for the kick group to kick
-function mod.PlayToKick(boss_mod, trigger_data, warning, args)
+function mod.PlayToKick(boss_mod, trigger_data, timer, args, context)
 	--Execute order Warning => Play. We only play sound here
 	if boss_mod.player_can_kick then
 		local base_sound = trigger_data.sound or "kick"

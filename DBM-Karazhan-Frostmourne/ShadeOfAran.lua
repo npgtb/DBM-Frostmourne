@@ -57,15 +57,25 @@ mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
 	[mod.SPELLS.FLAME_WREATH_CAST.KEY] = {
 		DEFAULT = 60,
-		CAST_TIMER = {
-			DEFAULT = 5
-		}
+		CAST_TIMER = {DEFAULT = 5}
 	},
 	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
 		DEFAULT = 60,
-		CAST_TIMER = {
-			DEFAULT = 5
-		}
+		CAST_TIMER = {DEFAULT = 10}
+	},
+	[mod.SPELLS.SUMMON_BLIZZARD.KEY] = {DEFAULT = 63},
+	[mod.SPELLS.CHAINS_OF_ICE.KEY] = {DEFAULT = 60},
+	[mod.SPELLS.COUNTERSPELL.KEY] = {DEFAULT = 6},
+}
+mod.HEROIC_TIMINGS_PHASE_DEFAULT = {
+	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
+	[mod.SPELLS.FLAME_WREATH_CAST.KEY] = {
+		DEFAULT = 60,
+		CAST_TIMER = {DEFAULT = 5}
+	},
+	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
+		DEFAULT = 60,
+		CAST_TIMER = {DEFAULT = 5}
 	},
 	[mod.SPELLS.SUMMON_BLIZZARD.KEY] = {DEFAULT = 63},
 	[mod.SPELLS.CHAINS_OF_ICE.KEY] = {DEFAULT = 60},
@@ -74,8 +84,8 @@ mod.TIMINGS_PHASE_DEFAULT = {
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_25] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
-	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
-	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = { PHASE_DEFAULT = mod.HEROIC_TIMINGS_PHASE_DEFAULT },
+	[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = { PHASE_DEFAULT = mod.HEROIC_TIMINGS_PHASE_DEFAULT },
 }
 
 --Define the model behavior
@@ -112,18 +122,20 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.MASS_SLOW.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "MagicDispeller", option_name = "Mass Slow dispell warning"},
+				WARNING = {type = "NewSpecialWarningDispel", filter = true, option_name = "Mass Slow dispell warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {
-						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return DBM_BEHAVIOR.CanDispell(boss_mod, args) and DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.CanDispel(boss_mod, args, spell_id, update_subtype, context) and 
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context)
 						end, 
 					}
 				},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {
-						condition = function(boss_mod, args, spell_id, update_subtype) 
-							return DBM_BEHAVIOR.CanDispell(boss_mod, args) and DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype)
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.CanDispel(boss_mod, args, spell_id, update_subtype, context) and 
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context)
 						end, 
-						sound = "helpdispel"
+						sound = "dispel_run"
 					}
 				}
 			}
@@ -136,7 +148,7 @@ mod.BEHAVIOR = {
 				TIMER = {type = "NewCDTimer", option_name = "Arcane Explosion cooldown"},
 				TIMER_STARTS = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
-				PLAY_SOUND = {SPELL_CAST_START = {sound = "runtoedge", condition = DBM_BEHAVIOR.CanNotDispell}}
+				PLAY_SOUND = {SPELL_CAST_START = {sound = "runtoedge", condition = DBM_BEHAVIOR.CanNotDispel}}
 			}
 		},
 		CAST_TIMER = {
@@ -152,7 +164,7 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = "MagicDispeller", option_name = "Chains of Ice cast warning"},
 				TIMER = {type = "NewCDTimer", option_name = "Chains of Ice cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_AURA_APPLIED = {}},
-				WARNING_SHOW = {SPELL_AURA_APPLIED = { condition = DBM_BEHAVIOR.CanDispell, inject = "destName" }}
+				WARNING_SHOW = {SPELL_AURA_APPLIED = { condition = DBM_BEHAVIOR.CanDispel, inject = "destName" }}
 			}
 		}
 	},
@@ -160,8 +172,20 @@ mod.BEHAVIOR = {
 		CAST_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Arcane Missiles warning"},
-				WARNING_SHOW = {SPELL_DAMAGE = {condition = DBM_BEHAVIOR.OnSelfAntiSpam}},
-				PLAY_SOUND = {SPELL_DAMAGE = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelfAntiSpam}}
+				WARNING_SHOW = {SPELL_DAMAGE = {
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.OnSelfAntiSpam(boss_mod, args, spell_id, update_subtype, context, 6) 
+						end
+					}
+				},
+				PLAY_SOUND = {
+					SPELL_DAMAGE = {
+						sound = "targetyou", 
+						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+							return DBM_BEHAVIOR.OnSelfAntiSpam(boss_mod, args, spell_id, update_subtype, context, 6) 
+						end
+					}
+				}
 			}
 		}
 	},
