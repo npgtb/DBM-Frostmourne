@@ -96,11 +96,11 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.PERMAFROST.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningStack", stacks = 4, option_name = "Permafrost stack warning"},
+				WARNING = {type = "NewSpecialWarningStack", stacks = 7, option_name = "Permafrost stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
+							return args.amount > 7 and DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
 						end,
 						inject = "amount"
 					}
@@ -108,7 +108,7 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return args.amount > 4 and DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
+							return args.amount > 7 and DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
 						end,
 						sound = "stackhigh"
 					}

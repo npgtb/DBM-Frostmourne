@@ -271,7 +271,6 @@ local function RegisterExternalDispatchers(boss_mod, trigger_name, internal_even
 	}
 	if boss_mod[event_name] == nil and emote_events[event_name] then
 		boss_mod[event_name] = function(self, msg, npc, _, _, target)
-			print(npc,msg)
 			DBM_BEHAVIOR.HandleModelEvent(event_name, self, {message = msg, sender = npc, target = target})
 		end
 	--If internal event not blocked and boss mod doesnt have existing handle
