@@ -170,7 +170,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.SHADOW_BOLT.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningInterruptCount", filter = "HasInterrupt", option_name = "Kick Shadow Bolt warning"},
+				WARNING = {type = "NewSpecialWarningInterruptCount", filter = true, option_name = "Kick Shadow Bolt warning"},
 				WARNING_SHOW = {SPELL_CAST_START = {override = mod.WarnToKick}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "kick", override = mod.PlayToKick}}
 			},

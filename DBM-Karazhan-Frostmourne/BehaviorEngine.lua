@@ -547,7 +547,7 @@ local function HandleTimerUpdate(spell_id, spell_mapping, behavior, event, boss_
 		--Accept the judgement of a condition func
 		elseif 
 			trigger_data.condition == nil or
-			trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.TIMER, context)
+			trigger_data.condition(boss_mod, trigger_data, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.TIMER, context)
 		then
 			local injection = args[trigger_data.inject] or 0
 			--Try starting the timer
@@ -580,7 +580,7 @@ local function HandleWarningUpdate(spell_id, spell_mapping, behavior, event, bos
 		--Accept the judgement of a condition func
 		elseif 
 			trigger_data.condition == nil or
-			trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.WARNING, context)
+			trigger_data.condition(boss_mod, trigger_data, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.WARNING, context)
 		then
 			--Show warning
 			local injection = args[trigger_data.inject]
@@ -610,7 +610,7 @@ local function HandlePlayUpdate(spell_id, spell_mapping, behavior, event, boss_m
 			--Accept the judgement of a condition func
 			elseif 
 				trigger_data.condition == nil or
-				trigger_data.condition(boss_mod, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.PLAY, context)
+				trigger_data.condition(boss_mod, trigger_data, args, spell_id, DBM_BEHAVIOR.UPDATE_SUBTYPE.PLAY, context)
 			then
 				--Play the warning
 				warning:Play(sound_id)
@@ -774,7 +774,7 @@ function DBM_BEHAVIOR.ShouldTransitionPhase(boss_mod, boss_health)
 		local phase_warning = boss_mod.phase_warnings[boss_mod.phase]
 		--Should we transition the phase?
 		if boss_health <= transition_table.THRESHOLD then
-			engine.TransitPhase(boss_mod, transition_table.NEXT)
+			engine.TransitPhase(boss_mod, transition_table.NEXT, transition_table)
 		--Should we give pre warning?
 		elseif 
 			transition_table.WARNING ~= nil and
@@ -784,18 +784,26 @@ function DBM_BEHAVIOR.ShouldTransitionPhase(boss_mod, boss_health)
 		then
 			boss_mod.phase_warning_triggerd = true
 			phase_warning:Show()
-			phase_warning:Play("nextphasesoon")
+			if transition_table.PLAY_WARNING == nil or
+			   transition_table.PLAY_WARNING 
+			then
+				phase_warning:Play("nextphasesoon")
+			end
 		end
 	end
 
 end
 
 --Handle the phase transitions
-function DBM_BEHAVIOR.TransitPhase(boss_mod, next_phase)
+function DBM_BEHAVIOR.TransitPhase(boss_mod, next_phase, threshold_data)
 	local engine = DBM_BEHAVIOR
 	boss_mod.phase = next_phase
 	boss_mod.phase_warning_triggerd = false
-	boss_mod.phase_announcer:Play(engine.PHASE_ANNOUNCMENT_SOUND[boss_mod.phase])
+	if threshold_data.PLAY_ANNOUNCEMENT == nil or
+	   threshold_data.PLAY_ANNOUNCEMENT
+	then
+		boss_mod.phase_announcer:Play(engine.PHASE_ANNOUNCMENT_SOUND[boss_mod.phase])
+	end
 	DBM_KFU.Debug("DBM_BEHAVIOR: Phase " .. boss_mod.phase)
 	engine.HandleModelEvent("PHASE_START_" .. boss_mod.phase, boss_mod, {})
 end
@@ -867,86 +875,100 @@ function DBM_BEHAVIOR.CombatStartFetchData(boss_mod)
 end
 
 --Common conditions, Are we a tank?
-function DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.IsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return boss_mod:IsTank()
 end
 
 --Common conditions, Are we a healer?
-function DBM_BEHAVIOR.IsHealer(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.IsHealer(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return boss_mod:IsHealer()
 end
 
 --Common conditions, Are we a dps?
-function DBM_BEHAVIOR.IsDps(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.IsDps(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return boss_mod:IsDps()
 end
 
 --Common conditions, Can we kick?
-function DBM_BEHAVIOR.CanKick(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.CanKick(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_kick
 end
 
 --Common conditions, Can we dispell magic?
-function DBM_BEHAVIOR.CanDispel(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.CanDispel(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_dispel
 end
 
 --Common conditions, Do we not have ability to dispell?
-function DBM_BEHAVIOR.CanNotDispel(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.CanNotDispel(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return not boss_mod.player_can_dispel
 end
 
 --Common conditions, Can we decurse?
-function DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.CanDecurse(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_decurse
 end
 
 --Common conditions, Can we dispell magic?
-function DBM_BEHAVIOR.CanCleanseDisease(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.CanCleanseDisease(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_cleanse_disease
 end
 
 --Common conditions, Can we dispell magic?
-function DBM_BEHAVIOR.CanCleansePoison(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.CanCleansePoison(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return boss_mod.player_can_cleanse_poison
 end
 
 --Common conditions, Are we either the target or source of the spell (Spells that bind two player together)
-function DBM_BEHAVIOR.IsTargetOrDest(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.IsTargetOrDest(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return args.destGUID == boss_mod.player_guid or args.sourceGUID == boss_mod.player_guid
 end
 
 --Common conditions, Something happening to us
-function DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return args.destGUID == boss_mod.player_guid
 end
 
 --Common conditions, Something happening to us
-function DBM_BEHAVIOR.NotOnSelfAndIsTank(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.NotOnSelfAndIsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return args.destGUID ~= boss_mod.player_guid and boss_mod:IsTank()
 end
 
 --Common conditions, Something happening to us
-function DBM_BEHAVIOR.DestIsSelf(boss_mod, args, spell_id, update_subtype, context)
+function DBM_BEHAVIOR.DestIsSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	return args.destName == boss_mod.player_name
 end
 
 --Common conditions, DBM antispam
-function DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, duration)
+function DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	--Key the antispam with combo of spell_id + subtype
 	local anti_spam_key = spell_id + update_subtype
 	if context then
 		anti_spam_key = context .. anti_spam_key
 	end
-	return boss_mod:AntiSpam(duration, anti_spam_key)
+	return boss_mod:AntiSpam(trigger_data.antispam_duration, anti_spam_key)
 end
 
 --Common conditions, Something happening to us and dbm antispam
-function DBM_BEHAVIOR.OnSelfAntiSpam(boss_mod, args, spell_id, update_subtype, context, duration)
+function DBM_BEHAVIOR.OnSelfAntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 	--Key the antispam with combo of spell_id + subtype
 	local anti_spam_key = spell_id + update_subtype
 	if context then
 		anti_spam_key = context .. anti_spam_key
 	end
-	return args.destGUID == boss_mod.player_guid and boss_mod:AntiSpam(duration, anti_spam_key)
+	return args.destGUID == boss_mod.player_guid and boss_mod:AntiSpam(trigger_data.antispam_duration, anti_spam_key)
+end
+
+--Common conditions, Checks if the stack amount exceeds the threshold
+function DBM_BEHAVIOR.StackHigh(boss_mod, trigger_data, args, spell_id, update_subtype, context)
+	return trigger_data.threshold ~= nil and
+		   args.amount ~= nil and
+		   args.amount >= trigger_data.threshold
+end
+
+--Common conditions, Checks if the stack amount exceeds the threshold
+function DBM_BEHAVIOR.BossMessage(boss_mod, trigger_data, args, spell_id, update_subtype, context)
+	return trigger_data.message ~= nil and
+		   args.message ~= nil and
+		   args.message:find(trigger_data.message)
 end

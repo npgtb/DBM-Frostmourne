@@ -22,7 +22,7 @@ mod.SPELLS = {
 --We transition based on his health %
 mod.MAX_PHASES = 2
 mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT = {
-	[DBM_BEHAVIOR.PHASES.PHASE_ONE] = {THRESHOLD = 20, WARNING = 25, NEXT = DBM_BEHAVIOR.PHASES.PHASE_TWO}
+	[DBM_BEHAVIOR.PHASES.PHASE_ONE] = {THRESHOLD = 20, WARNING = 25, NEXT = DBM_BEHAVIOR.PHASES.PHASE_TWO, PLAY_ANNOUNCEMENT = false}
 }
 mod.PHASE_TRANSITION_THRESHOLDS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { TRANSITION_DEFAULT = mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT },
@@ -38,7 +38,8 @@ mod.TIMINGS_PHASE_DEFAULT = {
 }
 mod.TIMINGS_HEROIC_PHASE_DEFAULT = {
 	[mod.SPELLS.BERSERK.KEY] = {DEFAULT = 600},
-	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 15, DEBUFF_TIMER = {DEFAULT = 14}}
+	[mod.SPELLS.DEEP_FREEZE.KEY] = {DEFAULT = 15, DEBUFF_TIMER = {DEFAULT = 14}},
+	[mod.SPELLS.PERMAFROST.KEY] = {APPLICATION_TIMER = {DEFAULT = 3}}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -68,9 +69,7 @@ mod.BEHAVIOR = {
 				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Deep Freeze debuff timer"},
 				TIMER_STARTS = {
 					SPELL_AURA_APPLIED = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context)
-						end
+						condition = DBM_BEHAVIOR.OnSelf
 					}
 				}
 			}
@@ -84,39 +83,28 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED = {
 						sound = "frenzy", 
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype, context) or
-								   DBM_BEHAVIOR.IsHealer(boss_mod, args, spell_id, update_subtype, context)
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
+							return DBM_BEHAVIOR.IsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context) or
+								   DBM_BEHAVIOR.IsHealer(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
 					}
 				}
 			}
 		}
 	},
-	[mod.SPELLS.PERMAFROST.KEY] = {
+	--[[[mod.SPELLS.PERMAFROST.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningStack", stacks = 7, option_name = "Permafrost stack warning"},
 				WARNING_SHOW = {
-					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return args.amount > 7 and DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
-						end,
-						inject = "amount"
-					}
+					SPELL_AURA_APPLIED_DOSE = {threshold = 3, condition = DBM_BEHAVIOR.StackHigh, inject = "amount"}
 				},
 				PLAY_SOUND = {
-					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return args.amount > 7 and DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
-						end,
-						sound = "stackhigh"
-					}
+					SPELL_AURA_APPLIED_DOSE = {threshold = 3, condition = DBM_BEHAVIOR.StackHigh, sound = "stackhigh"}
 				},
 			}
 		}
-	}
-
+	}--]]
 }
 local boss_unit_id = "boss1"
 

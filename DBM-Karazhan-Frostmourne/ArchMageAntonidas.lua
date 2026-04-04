@@ -123,12 +123,12 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.BLIGHT.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Blight cure warning"}, 
+				WARNING = {type = "NewSpecialWarningDispel", filter = true option_name = "Blight cure warning"}, 
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {
 						inject = "destName",
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.CanCleanseDisease(boss_mod, args, spell_id, update_subtype, context) and 
-							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context)
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
+							return DBM_BEHAVIOR.CanCleanseDisease(boss_mod, trigger_data, args, spell_id, update_subtype, context) and 
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
 					}
 				}
@@ -138,9 +138,9 @@ mod.BEHAVIOR = {
 			DEFAULT = {
 				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Blight cure timer"},
 				TIMER_STARTS = {SPELL_AURA_APPLIED = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.CanCleanseDisease(boss_mod, args, spell_id, update_subtype, context) and 
-							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context)
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
+							return DBM_BEHAVIOR.CanCleanseDisease(boss_mod, trigger_data, args, spell_id, update_subtype, context) and 
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end
 					}
 				}
@@ -150,7 +150,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.EMPOWERED_BLIGHT.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveDisease", option_name = "Empowered Blight cure warning"},
+				WARNING = {type = "NewSpecialWarningDispel", filter = true, option_name = "Empowered Blight cure warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName"}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "dispelnow", condition = DBM_BEHAVIOR.CanCleanseDisease}}
 			}
@@ -159,15 +159,16 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.CURSE_OF_DOOM.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "RemoveCurse", option_name = "Curse of Doom decurse warning"},
+				WARNING = {type = "NewSpecialWarningDispel", filter = true, option_name = "Curse of Doom decurse warning"},
 				TIMER = {type = "NewCDTimer", option_name = "Curse of Doom cooldown"},
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName", condition = DBM_BEHAVIOR.AntiSpam}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {
 						sound = "decurse", 
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype, context) and
-							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 8)
+						antispam_duration = 8,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
+							return DBM_BEHAVIOR.CanDecurse(boss_mod, trigger_data, args, spell_id, update_subtype, context) and
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
 					}
 				}
@@ -177,9 +178,10 @@ mod.BEHAVIOR = {
 			DEFAULT = {
 				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Curse of Doom decurse timer"},
 				TIMER_STARTS = {SPELL_AURA_APPLIED = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.CanDecurse(boss_mod, args, spell_id, update_subtype, context) and
-							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 8)
+						antispam_duration = 8,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
+							return DBM_BEHAVIOR.CanDecurse(boss_mod, trigger_data, args, spell_id, update_subtype, context) and
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end
 					}
 				}
@@ -235,18 +237,18 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningStack", stacks = 2, option_name = "Shroud of Darkness stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return args.amount > 2 and 
-							       DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
+							       DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 						end,
 						inject = "amount"
 					}
 				},
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return args.amount > 2 and 
-							       DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
+							       DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 						end,
 						sound = "stackhigh"
 					}
@@ -261,20 +263,22 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Water Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+						antispam_duration = 30,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return args.entity ~= nil and
 							       args.entity == "Water Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end
 					}
 				},
 				PLAY_SOUND = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Water Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+						antispam_duration = 30,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return args.entity ~= nil and
 							       args.entity == "Water Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
 						sound = "killmob"
 					}
@@ -286,10 +290,11 @@ mod.BEHAVIOR = {
 					ON_COMBAT_START = {inject = "offset"}, 
 					MANUAL_NEW_ENTITY = {
 						entity = "Water Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+						antispam_duration = 30,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return args.entity ~= nil and
 							       args.entity == "Water Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end
 					}
 				}
@@ -302,21 +307,23 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+						antispam_duration = 30,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return args.entity ~= nil and
 							       args.entity == "Death Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end
 					}
 				},
 				PLAY_SOUND = {
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+						antispam_duration = 30,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return args.entity ~= nil and
 							       args.entity == "Death Elemental" and
-								   DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype, context) and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
+								   DBM_BEHAVIOR.IsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context) and
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
 						sound = "mobout"
 					}
@@ -325,9 +332,10 @@ mod.BEHAVIOR = {
 					ON_COMBAT_START = {inject = "offset"}, 
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype, context)
+						antispam_duration = 30,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 							return args.entity ~= nil and args.entity == "Death Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end
 					}
 				}
@@ -339,9 +347,10 @@ mod.BEHAVIOR = {
 				TIMER_STARTS = {		
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",
-						condition = function(boss_mod, args, spell_id, update_subtype, context)
+						antispam_duration = 30,
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 							return args.entity ~= nil and args.entity == "Death Elemental" and
-								   DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context, 30)
+								   DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end
 					}
 				}

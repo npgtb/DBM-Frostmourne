@@ -122,18 +122,18 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningStack", stacks = 5, option_name = "Mortal Found stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context)
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 							return args.amount > 7 and 
-							       DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
+							       DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 						end,
 						inject = "amount"
 					}
 				},
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return args.amount > 7 and 
-							       DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) 
+							       DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 						end,
 						sound = "stackhigh"
 					}
@@ -145,20 +145,20 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarningTaunt", option_name = "Mortal Found taunt warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context)
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 							return args.amount > 5 and 
-							       not DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) and
-								   DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype, context)
+							       not DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) and
+								   DBM_BEHAVIOR.IsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
 						inject = "destName"
 					}
 				},
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context)
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 							return args.amount > 5 and 
-							       not DBM_BEHAVIOR.OnSelf(boss_mod, args, spell_id, update_subtype, context) and
-								   DBM_BEHAVIOR.IsTank(boss_mod, args, spell_id, update_subtype, context)
+							       not DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) and
+								   DBM_BEHAVIOR.IsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
 						sound = "tauntboss"
 					}

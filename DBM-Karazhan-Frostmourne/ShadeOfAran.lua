@@ -97,8 +97,8 @@ mod.BEHAVIOR = {
 		CAST_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewCastAnnounce", option_name = "Flame Wreath cast warning"},
-				TIMER = {type = "NewCDTimer", option_name = "Flame Wreath cooldown"},
-				TIMER_STARTS = {SPELL_CAST_START = {}},
+				--TIMER = {type = "NewCDTimer", option_name = "Flame Wreath cooldown"},
+				--TIMER_STARTS = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "aesoon"}}
 			}
@@ -124,16 +124,16 @@ mod.BEHAVIOR = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = true, option_name = "Mass Slow dispell warning"},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.CanDispel(boss_mod, args, spell_id, update_subtype, context) and 
-							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context)
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
+							return DBM_BEHAVIOR.CanDispel(boss_mod, trigger_data, args, spell_id, update_subtype, context) and 
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end, 
 					}
 				},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.CanDispel(boss_mod, args, spell_id, update_subtype, context) and 
-							       DBM_BEHAVIOR.AntiSpam(boss_mod, args, spell_id, update_subtype, context)
+						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
+							return DBM_BEHAVIOR.CanDispel(boss_mod, trigger_data, args, spell_id, update_subtype, context) and 
+							       DBM_BEHAVIOR.AntiSpam(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end, 
 						sound = "dispel_run"
 					}
@@ -145,8 +145,8 @@ mod.BEHAVIOR = {
 		CAST_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningMove", option_name = "Arcane Explosion cast warning"},
-				TIMER = {type = "NewCDTimer", option_name = "Arcane Explosion cooldown"},
-				TIMER_STARTS = {SPELL_CAST_START = {}},
+				--TIMER = {type = "NewCDTimer", option_name = "Arcane Explosion cooldown"},
+				--TIMER_STARTS = {SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "runtoedge", condition = DBM_BEHAVIOR.CanNotDispel}}
 			}
@@ -161,7 +161,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.CHAINS_OF_ICE.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = "MagicDispeller", option_name = "Chains of Ice cast warning"},
+				WARNING = {type = "NewSpecialWarningDispel", filter = true, option_name = "Chains of Ice cast warning"},
 				TIMER = {type = "NewCDTimer", option_name = "Chains of Ice cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = { condition = DBM_BEHAVIOR.CanDispel, inject = "destName" }}
@@ -173,30 +173,28 @@ mod.BEHAVIOR = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Arcane Missiles warning"},
 				WARNING_SHOW = {SPELL_DAMAGE = {
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.OnSelfAntiSpam(boss_mod, args, spell_id, update_subtype, context, 6) 
-						end
+						antispam_duration = 6,
+						condition = DBM_BEHAVIOR.OnSelfAntiSpam
 					}
 				},
 				PLAY_SOUND = {
 					SPELL_DAMAGE = {
 						sound = "targetyou", 
-						condition = function(boss_mod, args, spell_id, update_subtype, context) 
-							return DBM_BEHAVIOR.OnSelfAntiSpam(boss_mod, args, spell_id, update_subtype, context, 6) 
-						end
+						antispam_duration = 6,
+						condition = DBM_BEHAVIOR.OnSelfAntiSpam
 					}
 				}
 			}
 		}
 	},
-	[mod.SPELLS.SUMMON_BLIZZARD.KEY] = {
+	--[[[mod.SPELLS.SUMMON_BLIZZARD.KEY] = {
 		CD = {
 			DEFAULT = {
 				TIMER = {type = "NewCDTimer", option_name = "Summon Blizzard cooldown"},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 			}
 		}
-	},
+	},--]]
 	[mod.SPELLS.COUNTERSPELL.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
@@ -229,10 +227,8 @@ mod.BEHAVIOR = {
 				WARNING = {type = "NewSpecialWarning", text = "Kill the adds!", option_name = "Kill adds warning"},
 				WARNING_SHOW = {
 					CHAT_MSG_MONSTER_SAY = { 
-						condition = function(boss_mod, args, spell_id, update_subtype, context)
-							local boss_say = "I'm not finished yet! No, I have a few more tricks up my sleeve..."
-							return args.message and args.message:find(boss_say)
-						end
+						message = "I'm not finished yet! No, I have a few more tricks up my sleeve...",
+						condition = DBM_BEHAVIOR.BossMessage
 					}
 				},
 			}
@@ -276,8 +272,3 @@ end
 --Initialize the model
 DBM_BEHAVIOR.CreateBossModel(mod)
 DBM_BEHAVIOR.InitPhaseMonitor(mod, boss_unit_id, mod.MAX_PHASES)
-
-
-function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, npc, _, _, target)
-	
-end
