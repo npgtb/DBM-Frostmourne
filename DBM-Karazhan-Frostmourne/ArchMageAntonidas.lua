@@ -67,7 +67,7 @@ mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT = {
 }
 mod.PHASE_HEROIC_TRANSITION_THRESHOLDS_DEFAULT = {
 	[DBM_BEHAVIOR.PHASES.PHASE_ONE] = {THRESHOLD = 60, WARNING = 65, NEXT = DBM_BEHAVIOR.PHASES.PHASE_TWO},
-	[DBM_BEHAVIOR.PHASES.PHASE_TWO] = {THRESHOLD = 20, WARNING = 25, NEXT = DBM_BEHAVIOR.PHASES.PHASE_THREE}
+	[DBM_BEHAVIOR.PHASES.PHASE_TWO] = {THRESHOLD = 10, WARNING = 15, NEXT = DBM_BEHAVIOR.PHASES.PHASE_THREE}
 }
 mod.PHASE_TRANSITION_THRESHOLDS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { TRANSITION_DEFAULT = mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT },
@@ -89,7 +89,9 @@ mod.TIMINGS_PHASE_DEFAULT = {
 		WATER_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 50},
 		DEATH_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 40},
 		DEATH_ELEMENTAL_EXPLOSION = {DEFAULT = 14}
-	}
+	},
+	[mod.SPELLS.PRESENCE_OF_FROST.KEY] = {DEFAULT = 29},
+	[mod.SPELLS.PRESENCE_OF_SHADOW.KEY] = {DEFAULT = 29}
 }
 
 mod.HEROIC_TIMINGS_PHASE_DEFAULT = {
@@ -106,7 +108,9 @@ mod.HEROIC_TIMINGS_PHASE_DEFAULT = {
 		WATER_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 50},
 		DEATH_ELEMENTAL_TIMER = {DEFAULT = 60, ON_COMBAT_START = 40},
 		DEATH_ELEMENTAL_EXPLOSION = {DEFAULT = 10}
-	}
+	},
+	[mod.SPELLS.PRESENCE_OF_FROST.KEY] = {DEFAULT = 29},
+	[mod.SPELLS.PRESENCE_OF_SHADOW.KEY] = {DEFAULT = 29}
 }
 mod.TIMINGS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { PHASE_DEFAULT = mod.TIMINGS_PHASE_DEFAULT },
@@ -123,7 +127,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.BLIGHT.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningDispel", filter = true option_name = "Blight cure warning"}, 
+				WARNING = {type = "NewSpecialWarningDispel", filter = true, option_name = "Blight cure warning"}, 
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {
 						inject = "destName",
 						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
@@ -136,7 +140,7 @@ mod.BEHAVIOR = {
 		},
 		CURE_TIMER  = {
 			DEFAULT = {
-				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Blight cure timer"},
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Blight cure timer", color_type = 3},
 				TIMER_STARTS = {SPELL_AURA_APPLIED = {
 						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
 							return DBM_BEHAVIOR.CanCleanseDisease(boss_mod, trigger_data, args, spell_id, update_subtype, context) and 
@@ -160,7 +164,7 @@ mod.BEHAVIOR = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = true, option_name = "Curse of Doom decurse warning"},
-				TIMER = {type = "NewCDTimer", option_name = "Curse of Doom cooldown"},
+				TIMER = {type = "NewCDTimer", option_name = "Curse of Doom cooldown", color_type = 2},
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {inject = "destName", condition = DBM_BEHAVIOR.AntiSpam}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {
@@ -176,7 +180,7 @@ mod.BEHAVIOR = {
 		},
 		DECURSE_TIMER  = {
 			DEFAULT = {
-				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Curse of Doom decurse timer"},
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.HEALER_ICON, option_name = "Curse of Doom decurse timer", color_type = 3},
 				TIMER_STARTS = {SPELL_AURA_APPLIED = {
 						antispam_duration = 8,
 						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
@@ -214,6 +218,22 @@ mod.BEHAVIOR = {
 			}
 		}
 	},
+	[mod.SPELLS.PRESENCE_OF_FROST.KEY] = {
+		DEBUFF_TIMER = {
+			DEFAULT = {
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Presence of Frost Debuff timer", color_type = 3},
+				TIMER_STARTS = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}}
+			}
+		}
+	},
+	[mod.SPELLS.PRESENCE_OF_SHADOW.KEY] = {
+		DEBUFF_TIMER = {
+			DEFAULT = {
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Presence of Shadow Debuff timer", color_type = 3},
+				TIMER_STARTS = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}}
+			}
+		}
+	},
 	[mod.SPELLS.CHILL.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
@@ -232,8 +252,8 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.SHROUD_OF_DARKNESS.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer", option_name = "Shroud of Darkness cooldown"},
-				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
+				TIMER = {type = "NewCDTimer", option_name = "Shroud of Darkness cooldown", color_type = 3},
+				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}, SPELL_AURA_APPLIED_DOSE = {}},
 				WARNING = {type = "NewSpecialWarningStack", stacks = 2, option_name = "Shroud of Darkness stack warning"},
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
@@ -284,7 +304,7 @@ mod.BEHAVIOR = {
 					}
 				},
 				TIMER = {
-					type = "NewCDTimer", spell_id = 31687, option_name = "Summon Water Elemental cooldown"
+					type = "NewCDTimer", spell_id = 31687, option_name = "Summon Water Elemental cooldown", color_type = 1
 				},
 				TIMER_STARTS = {
 					ON_COMBAT_START = {inject = "offset"}, 
@@ -302,7 +322,7 @@ mod.BEHAVIOR = {
 		},
 		DEATH_ELEMENTAL_TIMER = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer", spell_id = 697, text = "Death Elemental", option_name = "Summon Death Elemental cooldown"},
+				TIMER = {type = "NewCDTimer", spell_id = 697, text = "Death Elemental", option_name = "Summon Death Elemental cooldown", color_type = 1},
 				WARNING = {type = "NewSpecialWarningAdds", spell_id = 697, option_name = "Warn Death Elemental spawn"},
 				WARNING_SHOW = {
 					MANUAL_NEW_ENTITY = {
@@ -343,7 +363,7 @@ mod.BEHAVIOR = {
 		},
 		DEATH_ELEMENTAL_EXPLOSION = {
 			DEFAULT = {
-				TIMER = {type = "NewCastTimer", spell_id = 9250064, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Death Elemental Explosion timer"},
+				TIMER = {type = "NewCastTimer", spell_id = 9250064, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Death Elemental Explosion timer", color_type = 2},
 				TIMER_STARTS = {		
 					MANUAL_NEW_ENTITY = {
 						entity = "Death Elemental",

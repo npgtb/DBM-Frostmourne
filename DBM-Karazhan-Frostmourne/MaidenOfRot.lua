@@ -66,7 +66,7 @@ mod.BEHAVIOR = {
 		},
 		DEBUFF_TIMER = {
 			DEFAULT = {
-				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Deep Freeze debuff timer"},
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Deep Freeze debuff timer", color_type = 3},
 				TIMER_STARTS = {
 					SPELL_AURA_APPLIED = {
 						condition = DBM_BEHAVIOR.OnSelf
@@ -82,11 +82,7 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {}},
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED = {
-						sound = "frenzy", 
-						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
-							return DBM_BEHAVIOR.IsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context) or
-								   DBM_BEHAVIOR.IsHealer(boss_mod, trigger_data, args, spell_id, update_subtype, context)
-						end,
+						sound = "frenzy"
 					}
 				}
 			}

@@ -8,38 +8,6 @@ mod:RegisterCombat("combat")
 
 mod.MAX_PHASES = 4
 
-mod:AddDropdownOption("KickGroupSize", {"1", "2", "3", "4", "5"}, "2", "misc", nil, nil)
-mod.vb.kick_group_count = 2
-mod.vb.current_kick_group = 0
-
---Solves the current kick group
-function mod.SolveKickGroup()
-	--Solve the current kick group number
-	mod.vb.current_kick_group = mod.vb.current_kick_group + 1
-	if mod.vb.current_kick_group > mod.vb.kick_group_count then
-		mod.vb.current_kick_group = 1
-	end
-	return mod.vb.current_kick_group
-end
-
---Shows a warning for the kick groups to kick
-function mod.WarnToKick(boss_mod, trigger_data, warning, args, context)
-	--Warn the current kick group to kick the caster
-	if boss_mod.player_can_kick then
-		warning:Show(args.sourceName, boss_mod.SolveKickGroup())
-	end
-end
-
---Plays a warning for the kick group to kick
-function mod.PlayToKick(boss_mod, trigger_data, warning, args, context)
-	--Execute order Warning => Play. We only play sound here
-	if boss_mod.player_can_kick then
-		local base_sound = trigger_data.sound or "kick"
-		local kick_audio_string = base_sound .. boss_mod.vb.current_kick_group .. "r"
-		warning:Play(kick_audio_string)
-	end
-end
-
 --Spell ids of the counter
 mod.SPELLS = {
 	BERSERK = {KEY = "BERSERK", NAME = "Berserk", ID = {DEFAULT = 26662}},
@@ -120,14 +88,14 @@ mod.BEHAVIOR = {
 	},
 	[mod.SPELLS.FROSTBOLT_VOLLEY.KEY] = {
 		CD = {
-			DEFAULT = {TIMER = {type = "NewCDTimer", option_name = "Frostbolt volley cooldown"}, TIMER_STARTS = {PHASE_START_3 = {}, SPELL_CAST_SUCCESS = {}}}
+			DEFAULT = {TIMER = {type = "NewCDTimer", option_name = "Frostbolt volley cooldown"}, TIMER_STARTS = {PHASE_START_2 = {}, SPELL_CAST_SUCCESS = {}}}
 		}
 	},
 	[mod.SPELLS.DEADEN.KEY] = {
 		CAST_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Deaden warning"},
-				TIMER = {type = "NewCDTimer", option_name = "Deaden cooldown"},
+				TIMER = {type = "NewCDTimer", option_name = "Deaden cooldown", color_type = 3},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
@@ -146,7 +114,7 @@ mod.BEHAVIOR = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningGTFO", option_name = "Blistering Cold warning"},
 				TIMER = {type = "NewCDTimer", option_name = "Blistering Cold cooldown"},
-				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_CAST_START = {}},
+				TIMER_STARTS = {PHASE_START_3 = {}, SPELL_CAST_START = {}},
 				WARNING_SHOW = {SPELL_CAST_START = {}},
 				PLAY_SOUND = {SPELL_CAST_START = {sound = "runaway"}}
 			}
@@ -165,15 +133,6 @@ mod.BEHAVIOR = {
 					SPELL_MISSED = {condition = DBM_BEHAVIOR.OnSelfAntiSpam, sound = "runaway"}
 				}
 			}
-		}
-	},
-	[mod.SPELLS.SHADOW_BOLT.KEY] = {
-		CAST_WARN = {
-			DEFAULT = {
-				WARNING = {type = "NewSpecialWarningInterruptCount", filter = true, option_name = "Kick Shadow Bolt warning"},
-				WARNING_SHOW = {SPELL_CAST_START = {override = mod.WarnToKick}},
-				PLAY_SOUND = {SPELL_CAST_START = {sound = "kick", override = mod.PlayToKick}}
-			},
 		}
 	},
 	[mod.SPELLS.SCYTHEWINGS_WAIL.KEY] = {

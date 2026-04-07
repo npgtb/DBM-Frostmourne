@@ -43,7 +43,7 @@ mod.SPELLS = {
 
 --We transition based on his health %
 mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT = {
-	[DBM_BEHAVIOR.PHASES.PHASE_ONE] = {THRESHOLD = 40, WARNING = 45, NEXT = DBM_BEHAVIOR.PHASES.PHASE_TWO}
+	[DBM_BEHAVIOR.PHASES.PHASE_ONE] = {THRESHOLD = 40, WARNING = 45, NEXT = DBM_BEHAVIOR.PHASES.PHASE_TWO, PLAY_ANNOUNCEMENT = false}
 }
 mod.PHASE_TRANSITION_THRESHOLDS = {
 	[DBM_BEHAVIOR.DIFFICULTY.NORMAL_10] = { TRANSITION_DEFAULT = mod.PHASE_TRANSITION_THRESHOLDS_DEFAULT },
@@ -59,6 +59,7 @@ mod.TIMINGS_PHASE_DEFAULT = {
 		DEFAULT = 60,
 		CAST_TIMER = {DEFAULT = 5}
 	},
+	[mod.SPELLS.FLAME_WREATH.KEY] = {DEFAULT = 20},
 	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
 		DEFAULT = 60,
 		CAST_TIMER = {DEFAULT = 10}
@@ -73,6 +74,7 @@ mod.HEROIC_TIMINGS_PHASE_DEFAULT = {
 		DEFAULT = 60,
 		CAST_TIMER = {DEFAULT = 5}
 	},
+	[mod.SPELLS.FLAME_WREATH.KEY] = {DEFAULT = 20},
 	[mod.SPELLS.ARCANE_EXPLOSION.KEY] = {
 		DEFAULT = 60,
 		CAST_TIMER = {DEFAULT = 5}
@@ -105,7 +107,7 @@ mod.BEHAVIOR = {
 		},
 		CAST_TIMER = {
 			DEFAULT = {
-				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Flame Wreath cast timer"},
+				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Flame Wreath cast timer", color_type = 2},
 				TIMER_STARTS = {SPELL_CAST_START = {}}
 			}
 		}
@@ -113,9 +115,11 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FLAME_WREATH.KEY] = {
 		APPLIED_WARN = {
 			DEFAULT = {
+				TIMER = {type = "NewBuffFadesTimer",  icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Flame Wreath debuff timer", color_type = 3},
+				TIMER_STARTS = {SPELL_AURA_APPLIED = {}},
 				WARNING = {type = "NewSpecialWarning", text = "Stop Moving!", option_name = "Flame Wreath stop moving warning"},
-				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.OnSelf}},
-				PLAY_SOUND = {SPELL_AURA_APPLIED = {sound = "stopmove", condition = DBM_BEHAVIOR.OnSelf}}
+				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.AntiSpam}},
+				PLAY_SOUND = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.AntiSpam, sound = "stopmove"}}
 			}
 		}
 	},
@@ -153,7 +157,7 @@ mod.BEHAVIOR = {
 		},
 		CAST_TIMER = {
 			DEFAULT = {
-				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Arcane Explosion cast timer"},
+				TIMER = {type = "NewCastTimer", timing = 5, icon = DBM_COMMON_L.DEADLY_ICON, option_name = "Arcane Explosion cast timer", color_type = 2},
 				TIMER_STARTS = {SPELL_CAST_START = {}}
 			}
 		}
@@ -162,8 +166,8 @@ mod.BEHAVIOR = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningDispel", filter = true, option_name = "Chains of Ice cast warning"},
-				TIMER = {type = "NewCDTimer", option_name = "Chains of Ice cooldown"},
-				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_AURA_APPLIED = {}},
+				--TIMER = {type = "NewCDTimer", option_name = "Chains of Ice cooldown"},
+				--TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = { condition = DBM_BEHAVIOR.CanDispel, inject = "destName" }}
 			}
 		}
@@ -199,7 +203,7 @@ mod.BEHAVIOR = {
 		APPLIED_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Counterspell warning"},
-				TIMER = {type = "NewCDTimer", option_name = "Counterspell cooldown"},
+				TIMER = {type = "NewCDTimer", option_name = "Counterspell cooldown", color_type = 3},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}},
 				WARNING_SHOW = {SPELL_CAST_SUCCESS = {condition = DBM_BEHAVIOR.OnSelf}},
 				PLAY_SOUND = {SPELL_CAST_SUCCESS = {sound = "targetyou", condition = DBM_BEHAVIOR.OnSelf}}
@@ -231,6 +235,13 @@ mod.BEHAVIOR = {
 						condition = DBM_BEHAVIOR.BossMessage
 					}
 				},
+				PLAY_SOUND = {
+					CHAT_MSG_MONSTER_SAY = { 
+						message = "I'm not finished yet! No, I have a few more tricks up my sleeve...",
+						condition = DBM_BEHAVIOR.BossMessage,
+						sound = "killmob"
+					}
+				}
 			}
 		}
 	},

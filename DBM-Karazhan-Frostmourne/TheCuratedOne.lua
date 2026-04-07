@@ -62,7 +62,7 @@ mod.TIMINGS_PHASE_DEFAULT = {
 	[mod.SPELLS.CHAOS_BOLT.KEY] = {DEFAULT = 4, ON_COMBAT_START = 3},
 	[mod.SPELLS.FEAR.KEY] = {DEFAULT = 25},
 	[mod.SPELLS.BLOOD_MIRROR.KEY] = {DEFAULT = 25},
-	[mod.SPELLS.DEATH_AND_DECAY.KEY] = {DEFAULT = 20, PHASE_START_2 = 10},
+	[mod.SPELLS.DEATH_AND_DECAY.KEY] = {DEFAULT = 10, PHASE_START_2 = 10},
 	[mod.SPELLS.COLDFLAME_SUMMON.KEY] = {DEFAULT = 10}
 }
 mod.TIMINGS = {
@@ -80,7 +80,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.FEAR.KEY] = {
 		CD = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer", option_name = "Fear cooldown"},
+				TIMER = {type = "NewCDTimer", option_name = "Fear cooldown", color_type = 3},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_SUCCESS = {}}
 			}
 		}
@@ -89,7 +89,7 @@ mod.BEHAVIOR = {
 		CAST_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Chaos Bolt warning"},
-				TIMER = {type = "NewCDTimer", option_name = "Chaos Bolt cooldown"},
+				TIMER = {type = "NewCDTimer", option_name = "Chaos Bolt cooldown", color_type = 3},
 				TIMER_STARTS = {ON_COMBAT_START = {inject = "offset"}, SPELL_CAST_START = {}},
 				SCAN_TRIGGER = {SPELL_CAST_START = {frequency = 0.05, scan_attempts = 10}},
 				WARNING_SHOW = {ON_SCAN = {}},
@@ -100,7 +100,7 @@ mod.BEHAVIOR = {
 		AURA_WARN = {
 			DEFAULT = {
 				WARNING = {type = "NewSpecialWarningYou", option_name = "Blood Mirror warning"},
-				TIMER = {type = "NewCDTimer", option_name = "Blood Mirror cooldown"},
+				TIMER = {type = "NewCDTimer", option_name = "Blood Mirror cooldown", color_type = 3},
 				TIMER_STARTS = {PHASE_START_3 = {}, SPELL_AURA_APPLIED = {}},
 				WARNING_SHOW = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.IsTargetOrDest}},
 				PLAY_SOUND = {SPELL_AURA_APPLIED = {condition = DBM_BEHAVIOR.IsTargetOrDest, sound = "targetyou"}}
@@ -123,7 +123,7 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
-							return args.amount > 7 and 
+							return args.amount > 5 and 
 							       DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 						end,
 						inject = "amount"
@@ -132,7 +132,7 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context)  
-							return args.amount > 7 and 
+							return args.amount > 5 and 
 							       DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
 						end,
 						sound = "stackhigh"
@@ -146,7 +146,7 @@ mod.BEHAVIOR = {
 				WARNING_SHOW = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
-							return args.amount > 5 and 
+							return args.amount == 5 and 
 							       not DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) and
 								   DBM_BEHAVIOR.IsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
@@ -156,7 +156,7 @@ mod.BEHAVIOR = {
 				PLAY_SOUND = {
 					SPELL_AURA_APPLIED_DOSE = {
 						condition = function(boss_mod, trigger_data, args, spell_id, update_subtype, context) 
-							return args.amount > 5 and 
+							return args.amount == 5 and 
 							       not DBM_BEHAVIOR.OnSelf(boss_mod, trigger_data, args, spell_id, update_subtype, context) and
 								   DBM_BEHAVIOR.IsTank(boss_mod, trigger_data, args, spell_id, update_subtype, context)
 						end,
@@ -168,7 +168,7 @@ mod.BEHAVIOR = {
 	},
 	[mod.SPELLS.COLDFLAME_SUMMON.KEY] = {
 		CD = {
-			DEFAULT = {TIMER = {type = "NewCDTimer", option_name = "Coldflame summon cooldown"},TIMER_STARTS = {PHASE_START_4 = {}, SPELL_SUMMON = {}}},
+			DEFAULT = {TIMER = {type = "NewCDTimer", option_name = "Coldflame summon cooldown", color_type = 2},TIMER_STARTS = {PHASE_START_4 = {}, SPELL_SUMMON = {}}},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_10] = {TIMER = {type = "NewCDTimer", option_name = "Coldflame summon cooldown"},TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_SUMMON = {}}},
 			[DBM_BEHAVIOR.DIFFICULTY.HEROIC_25] = {TIMER = {type = "NewCDTimer", option_name = "Coldflame summon cooldown"},TIMER_STARTS = {ON_COMBAT_START = {}, SPELL_SUMMON = {}}},
 		}
@@ -191,7 +191,7 @@ mod.BEHAVIOR = {
 	[mod.SPELLS.DEATH_AND_DECAY.KEY] = {
 		DAMAGE_WARN = {
 			DEFAULT = {
-				TIMER = {type = "NewCDTimer", option_name = "Death and Decay cooldown"},
+				TIMER = {type = "NewCDTimer", option_name = "Death and Decay cooldown", color_type = 2},
 				TIMER_STARTS = {PHASE_START_2 = {}, SPELL_CAST_SUCCESS = ""},
 				WARNING = {type = "NewSpecialWarningGTFO", option_name = "Death and Decay damage warning"},
 				WARNING_SHOW = {
